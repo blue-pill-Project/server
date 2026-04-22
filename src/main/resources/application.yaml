@@ -6,3 +6,10 @@ spring:
   threads:
     virtual:
       enabled: true
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+    display-request-duration: true
