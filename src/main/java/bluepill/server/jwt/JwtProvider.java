@@ -3,10 +3,10 @@ package bluepill.server.jwt;
 import bluepill.server.config.JwtConfig;
 import bluepill.server.domain.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.*;
 import org.springframework.stereotype.Component;
 
-import javax.crypto.SecretKey;
 import java.time.Instant;
 
 @Component
@@ -22,27 +22,30 @@ public class JwtProvider {
     public String generateAccessToken(User user) {
         Instant now = Instant.now(); //현재시간(Utc)
 
+        JwsHeader headers = JwsHeader.with(MacAlgorithm.HS256).build();
+
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .subject(String.valueOf(user.getUserId()))
                 .claim("role", user.getRole().name())
                 .claim("publicId", user.getPublicId().toString())
                 .issuedAt(now)
-                .expiresAt(now.plusSeconds(jwtConfig.getAccessTokenExpiration())) //1시간
+                .expiresAt(now.plusSeconds(jwtConfig.getAccessTokenExpiration()))
                 .build();
-        return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
+        return jwtEncoder.encode(JwtEncoderParameters.from(headers,claims)).getTokenValue();
     }
 
     //RefreshToken 생성
     public String generateRefreshToken(User user){
         Instant now = Instant.now(); //현재시간(Utc)
 
+        JwsHeader headers = JwsHeader.with(MacAlgorithm.HS256).build();
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .subject(String.valueOf(user.getUserId()))
                 .issuedAt(now)
                 .expiresAt(now.plusSeconds(jwtConfig.getRefreshTokenExpiration())) //7일
                 .build();
 
-        return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
+        return jwtEncoder.encode(JwtEncoderParameters.from(headers,claims)).getTokenValue();
     }
 
     //토큰 검증

@@ -6,6 +6,9 @@ spring:
   threads:
     virtual:
       enabled: true
+  config:
+    import:
+      - secrets.yml
 
 springdoc:
   swagger-ui:
@@ -14,7 +17,3 @@ springdoc:
     operations-sorter: alpha
     display-request-duration: true
 
-jwt:
-  secret: ${JWT_SECRET}
-  access-token-expiration: 3600000    # 1시간
-  refresh-token-expiration: 604800000  # 7일
