@@ -29,7 +29,10 @@ public class SecurityConfig {
                 //경로별 권한 설정
                 .authorizeHttpRequests(auth->auth
                         //swagger 허용
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers(
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/auth/reissue").permitAll()
 
                         //그 외에는 요청 인증 필요
                         .anyRequest().authenticated()
