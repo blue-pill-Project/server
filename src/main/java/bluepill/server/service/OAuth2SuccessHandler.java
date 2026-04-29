@@ -1,5 +1,6 @@
 package bluepill.server.service;
 
+import bluepill.server.config.JwtConfig;
 import bluepill.server.domain.User;
 import bluepill.server.domain.UserToken;
 import bluepill.server.exception.BusinessException;
@@ -18,12 +19,14 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 
 @Component
 @RequiredArgsConstructor
 public class OAuth2SuccessHandler  extends SimpleUrlAuthenticationSuccessHandler {
 
     private final JwtProvider jwtProvider;
+    private final JwtConfig jwtConfig;
     private final UserRepository userRepository;
     private final UserTokenRepository userTokenRepository;
 
@@ -41,18 +44,24 @@ public class OAuth2SuccessHandler  extends SimpleUrlAuthenticationSuccessHandler
 
 
         // JWT 발급
-        String accessToken = jwtProvider.generateAccessToken(user);
         String refreshToken = jwtProvider.generateRefreshToken(user);
 
-        // Refresh Token DB 저장
-        UserToken userToken = UserToken.createToken(user, refreshToken);
+        LocalDateTime expiredAt = LocalDateTime.now()
+                .plusSeconds(jwtConfig.getRefreshTokenExpiration());
+
+        // 최초로그인 시 refreshToken생성, 만료 후 로그인일 경우 token값+만료일 update
+        UserToken userToken  = userTokenRepository.findByUser(user)
+                .map(token -> {
+                    token.updateRefreshToken(refreshToken, expiredAt);
+                    return token;
+                })
+                .orElseGet(() -> UserToken.createToken(user, refreshToken));
         userTokenRepository.save(userToken);
 
         response.addCookie(createRefreshTokenCookie(refreshToken));
 
         String redirectUrl = "http://localhost:3000/callback";
         getRedirectStrategy().sendRedirect(request, response, redirectUrl);
-
     }
 
     private Cookie createRefreshTokenCookie(String refreshToken) {
