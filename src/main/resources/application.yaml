@@ -8,7 +8,7 @@ spring:
       enabled: true
   config:
     import:
-      - optional:secrets.yml
+      - optional:application-secrets.yml
 
 springdoc:
   swagger-ui:
