@@ -115,7 +115,7 @@ public class CharacterCardRepositoryImpl implements CharacterCardRepositoryCusto
                         c.updatedAt))
                 .from(c)
                 .where(
-                        c.creator.id.eq(creatorId),
+                        c.creator.userId.eq(creatorId),
                         c.isDeleted.isFalse(),
                         publicOnlyCondition(c, includePrivate),
                         cursorConditionLatest(c, cursor)
