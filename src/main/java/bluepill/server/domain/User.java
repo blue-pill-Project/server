@@ -17,7 +17,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class User {
+public class User extends BaseTimeEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,10 +49,6 @@ public class User {
     @Column(name = "plan_id")
     private Long planId;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "role", nullable = false)
-    private Role role;
-
     @Column(name = "is_deleted", nullable = false)
     @Builder.Default
     private Boolean isDeleted = false;
@@ -64,25 +60,12 @@ public class User {
     @Builder.Default
     private Boolean isPublic = true;
 
-    @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
     // Provider Enum
     public enum Provider {
         GOOGLE, DISCORD
-    }
-
-    // Role Enum
-    public enum Role {
-        GUEST, USER
     }
 
     // 신규 유저 생성
@@ -93,7 +76,6 @@ public class User {
                 .provider(provider)
                 .email(email)
                 .imageUrl(imageUrl)
-                .role(Role.GUEST)
                 .isDeleted(false)
                 .isPublic(true)
                 .build();

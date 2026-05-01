@@ -38,7 +38,7 @@ out/
 
 ### Credentials ###
 .env
-src/main/resources/secrets.yml
+src/main/resources/application-secrets.yml
 
 ### Docker & Database ###
 postgres_data/

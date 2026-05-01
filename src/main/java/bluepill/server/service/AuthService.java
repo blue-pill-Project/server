@@ -34,8 +34,7 @@ public class AuthService {
         User user = userToken.getUser();
 
         String accessToken = "Bearer " + jwtProvider.generateAccessToken(user);
-        boolean isNewUser = user.getRole() == User.Role.GUEST;
 
-        return new TokenResponse(accessToken, isNewUser);
+        return new TokenResponse(accessToken);
     }
 }
