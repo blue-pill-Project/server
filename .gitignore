@@ -45,3 +45,7 @@ postgres_data/
 
 ### QueryDSL ###
 src/main/generated/
+
+### Claude Code ###
+CLAUDE.md
+.claude/
