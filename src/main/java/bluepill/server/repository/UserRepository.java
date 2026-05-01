@@ -9,4 +9,5 @@ import java.util.UUID;
 public interface  UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByPublicIdAndIsDeletedFalse(UUID publicId);
+    Optional<User> findByProviderAndProviderId(User.Provider provider, String providerId);
 }

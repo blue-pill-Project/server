@@ -6,3 +6,14 @@ spring:
   threads:
     virtual:
       enabled: true
+  config:
+    import:
+      - optional:application-secrets.yml
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+    display-request-duration: true
+

@@ -2,6 +2,8 @@ package bluepill.server.domain;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -12,24 +14,27 @@ import java.util.UUID;
 @Table(name = "users")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
 public class User extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
-    private Long id;
+    private Long userId;
 
-    @Column(name = "public_id", unique = true, nullable = false)
+    @Column(name = "public_id", nullable = false, unique = true, updatable = false)
     private UUID publicId;
 
     @Column(name = "image_url", length = 255)
     private String imageUrl;
 
-    @Column(name = "provider_id", length = 255)
+    @Column(name = "provider_id", nullable = false, length = 255)
     private String providerId;
 
-    @Column(name = "provider", length = 20)
-    private String provider;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "provider", nullable = false, length = 20)
+    private Provider provider;
 
     @Column(name = "account_name", length = 20)
     private String accountName;
@@ -44,23 +49,31 @@ public class User extends BaseTimeEntity {
     @JoinColumn(name = "plan_id")
     private SubscriptionPlan plan;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "role", nullable = false)
-    private Role role;
-
     @Column(name = "is_deleted", nullable = false)
-    private Boolean isDeleted;
+    @Builder.Default
+    private Boolean isDeleted = false;
 
-    @Column(name = "delete_reason", columnDefinition = "TEXT")
-    private String deleteReason;
+    @Column(name = "deleted_reason", columnDefinition = "TEXT")
+    private String deletedReason;
 
     @Column(name = "is_public", nullable = false)
-    private Boolean isPublic;
+    @Builder.Default
+    private Boolean isPublic = true;
 
     @Column(name = "deleted_at")
     private Instant deletedAt;
 
-    public enum Role {
-        GUEST, USER
+    public enum Provider {
+        GOOGLE, DISCORD
+    }
+
+    public static User createNewUser(String providerId, Provider provider, String email, String imageUrl) {
+        return User.builder()
+                .publicId(UUID.randomUUID())
+                .providerId(providerId)
+                .provider(provider)
+                .email(email)
+                .imageUrl(imageUrl)
+                .build();
     }
 }
