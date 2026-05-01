@@ -20,16 +20,12 @@ public class AuthService {
 
     @Transactional(readOnly = true)
     public TokenResponse reissue(String refreshToken) {
-        System.out.println("받은 refreshToken = " + refreshToken);
         if (!jwtProvider.validateToken(refreshToken)) {
-            throw new BusinessException(ErrorCode.INVALID_REFRESH_TOKEN);
+            throw new BusinessException(ErrorCode.EXPIRED_REFRESH_TOKEN);
         }
 
         UserToken userToken = userTokenRepository.findByRefreshToken(refreshToken)
-                .orElseThrow(() -> {
-                    System.out.println("DB에서 refreshToken 못 찾음");
-                    return new BusinessException(ErrorCode.INVALID_REFRESH_TOKEN);
-                });
+                .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_REFRESH_TOKEN));
 
         User user = userToken.getUser();
 
