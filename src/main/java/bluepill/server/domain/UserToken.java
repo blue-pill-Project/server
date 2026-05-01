@@ -48,4 +48,9 @@ public class UserToken {
                 .expiredAt(LocalDateTime.now().plusDays(7))
                 .build();
     }
+
+    public void updateRefreshToken(String refreshToken, LocalDateTime expiredAt) {
+        this.refreshToken = refreshToken;
+        this.expiredAt = LocalDateTime.now().plusDays(7);
+    }
 }

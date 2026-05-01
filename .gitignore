@@ -38,10 +38,11 @@ out/
 
 ### Credentials ###
 .env
-src/main/resources/secrets.yml
+src/main/resources/application-secrets.yml
 
 ### Docker & Database ###
 postgres_data/
 
-### QueryDSL ###
-src/main/generated/
+### Claude Code ###
+CLAUDE.md
+.claude/

@@ -1,23 +1,22 @@
 package bluepill.server.domain;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @Entity
 @Table(name = "users")
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class User {
+public class User extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,65 +26,47 @@ public class User {
     @Column(name = "public_id", nullable = false, unique = true, updatable = false)
     private UUID publicId;
 
-    @Column(name = "image_url")
+    @Column(name = "image_url", length = 255)
     private String imageUrl;
 
-    @Column(name = "provider_id", nullable = false)
+    @Column(name = "provider_id", nullable = false, length = 255)
     private String providerId;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "provider", nullable = false)
+    @Column(name = "provider", nullable = false, length = 20)
     private Provider provider;
 
-    @Column(name = "account_name")
+    @Column(name = "account_name", length = 20)
     private String accountName;
 
-    @Column(name = "nickname")
+    @Column(name = "nickname", length = 15)
     private String nickname;
 
-    @Column(name = "email")
+    @Column(name = "email", length = 255)
     private String email;
 
-    @Column(name = "plan_id")
-    private Long planId;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "role", nullable = false)
-    private Role role;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "plan_id")
+    private SubscriptionPlan plan;
 
     @Column(name = "is_deleted", nullable = false)
     @Builder.Default
     private Boolean isDeleted = false;
 
-    @Column(name = "deleted_reason")
+    @Column(name = "deleted_reason", columnDefinition = "TEXT")
     private String deletedReason;
 
     @Column(name = "is_public", nullable = false)
     @Builder.Default
     private Boolean isPublic = true;
 
-    @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
     @Column(name = "deleted_at")
-    private LocalDateTime deletedAt;
+    private Instant deletedAt;
 
-    // Provider Enum
     public enum Provider {
         GOOGLE, DISCORD
     }
 
-    // Role Enum
-    public enum Role {
-        GUEST, USER
-    }
-
-    // 신규 유저 생성
     public static User createNewUser(String providerId, Provider provider, String email, String imageUrl) {
         return User.builder()
                 .publicId(UUID.randomUUID())
@@ -93,9 +74,6 @@ public class User {
                 .provider(provider)
                 .email(email)
                 .imageUrl(imageUrl)
-                .role(Role.GUEST)
-                .isDeleted(false)
-                .isPublic(true)
                 .build();
     }
 }

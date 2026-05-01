@@ -26,7 +26,6 @@ public class JwtProvider {
 
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .subject(String.valueOf(user.getUserId()))
-                .claim("role", user.getRole().name())
                 .claim("publicId", user.getPublicId().toString())
                 .issuedAt(now)
                 .expiresAt(now.plusSeconds(jwtConfig.getAccessTokenExpiration()))
