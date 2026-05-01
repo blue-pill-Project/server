@@ -78,4 +78,8 @@ public class CharacterCard extends BaseTimeEntity {
     public void incrementVersion() {
         this.version++;
     }
+
+    public void softDelete() {
+        this.isDeleted = true;
+    }
 }

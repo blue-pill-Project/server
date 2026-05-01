@@ -23,6 +23,7 @@ public enum ErrorCode {
     ALREADY_REGISTERED(HttpStatus.FORBIDDEN, "이미 가입이 완료된 회원입니다."),
     FORBIDDEN(HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
     CHARACTER_CARD_PRIVATE(HttpStatus.FORBIDDEN, "비공개 카드입니다."),
+    CHARACTER_CARD_FORBIDDEN(HttpStatus.FORBIDDEN, "본인이 생성한 캐릭터 카드만 삭제 가능합니다."),
 
     // 404 Not Found
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 유저입니다."),

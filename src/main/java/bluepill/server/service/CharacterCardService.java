@@ -65,6 +65,18 @@ public class CharacterCardService {
         return characterCardRepository.save(card);
     }
 
+    @Transactional
+    public void deleteCharacterCard(UUID publicId, Long userId) {
+        CharacterCard card = characterCardRepository.findByPublicIdAndIsDeletedFalse(publicId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.CHARACTER_CARD_NOT_FOUND));
+
+        if (!card.getCreator().getUserId().equals(userId)) {
+            throw new BusinessException(ErrorCode.CHARACTER_CARD_FORBIDDEN);
+        }
+
+        card.softDelete();
+    }
+
     public CharacterCardListResponse getLibrary(String keyword, CharacterSortType sort,
                                                 UUID cursor, int size) {
         List<CharacterCardListItem> result = characterCardRepository.findLibrary(

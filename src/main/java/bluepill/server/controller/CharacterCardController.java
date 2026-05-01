@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -79,5 +80,17 @@ public class CharacterCardController {
 
         return ResponseEntity.ok(
                 ApiResponse.success("캐릭터 카드 상세 조회 성공", response));
+    }
+
+    @DeleteMapping("/{publicId}")
+    public ResponseEntity<ApiResponse<Void>> deleteCharacterCard(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @PathVariable UUID publicId) {
+
+        Long userId = Long.parseLong(userDetails.getUsername());
+        characterCardService.deleteCharacterCard(publicId, userId);
+
+        return ResponseEntity.ok(
+                ApiResponse.success("캐릭터 카드가 성공적으로 삭제되었습니다."));
     }
 }
