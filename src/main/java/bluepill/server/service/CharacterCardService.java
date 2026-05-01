@@ -87,7 +87,7 @@ public class CharacterCardService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.CHARACTER_CARD_NOT_FOUND));
 
         boolean isOwner = (viewerId != null)
-                && card.getCreator().getId().equals(viewerId);
+                && card.getCreator().getUserId().equals(viewerId);
 
         // 비공개 카드인데 본인 아님 → 403
         if (!card.getIsPublic() && !isOwner) {
@@ -108,11 +108,11 @@ public class CharacterCardService {
             UUID targetUserPublicId, Long viewerId, UUID cursor, int size) {
 
         User target = userService.findByPublicId(targetUserPublicId); //없거나 탈퇴면 USER_NOT_FOUND
-        boolean isOwner = (viewerId != null) && target.getId().equals(viewerId);
+        boolean isOwner = (viewerId != null) && target.getUserId().equals(viewerId);
 
         // 본인이면 비공개도 포함
         List<UserCharacterCardListItem> result = characterCardRepository.findByCreator(
-                target.getId(), isOwner, cursor, size);
+                target.getUserId(), isOwner, cursor, size);
 
         boolean hasNext = result.size() > size;
         if (hasNext) {
