@@ -16,22 +16,25 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) {
-
-        //구글에서 정보 가져오기
         OAuth2User oAuth2User = super.loadUser(userRequest);
 
-        String registrationId = userRequest.getClientRegistration().getRegistrationId(); // "google"
+        String registrationId = userRequest.getClientRegistration().getRegistrationId();
         User.Provider provider = User.Provider.valueOf(registrationId.toUpperCase());
 
-        String providerId = oAuth2User.getAttribute("sub");  // 구글 고유 ID
+        String providerId = getProviderId(provider, oAuth2User);
         String email = oAuth2User.getAttribute("email");
-        String imageUrl = oAuth2User.getAttribute("picture");
 
-        User user = userRepository
+        userRepository
                 .findByProviderAndProviderId(provider, providerId)
-                .orElseGet(() -> userRepository.save(User.createNewUser(providerId, provider, email, imageUrl)));
+                .orElseGet(() -> userRepository.save(User.createNewUser(providerId, provider, email)));
 
         return oAuth2User;
     }
 
+    private String getProviderId(User.Provider provider, OAuth2User oAuth2User) {
+        return switch(provider){
+            case GOOGLE -> oAuth2User.getAttribute("sub");
+            case DISCORD -> oAuth2User.getAttribute("id");
+        };
+    }
 }
