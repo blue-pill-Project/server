@@ -1,10 +1,10 @@
 package bluepill.server.service;
 
-import bluepill.server.config.JwtConfig;
 import bluepill.server.domain.User;
 import bluepill.server.domain.UserToken;
 import bluepill.server.exception.BusinessException;
 import bluepill.server.exception.ErrorCode;
+import bluepill.server.jwt.JwtConfig;
 import bluepill.server.jwt.JwtProvider;
 import bluepill.server.repository.UserRepository;
 import bluepill.server.repository.UserTokenRepository;
@@ -45,21 +45,21 @@ public class OAuth2SuccessHandler  extends SimpleUrlAuthenticationSuccessHandler
         // JWT 발급
         String refreshToken = jwtProvider.generateRefreshToken(user);
 
-        LocalDateTime expiredAt = LocalDateTime.now()
+        LocalDateTime expiresAt = LocalDateTime.now()
                 .plusSeconds(jwtConfig.getRefreshTokenExpiration());
 
-        // 최초로그인 시 refreshToken생성, 만료 후 로그인일 경우 token값+만료일 update
+        // refreshToken생성, 만료 후 로그인일 경우 token값+만료일 update
         UserToken userToken  = userTokenRepository.findByUser(user)
                 .map(token -> {
-                    token.updateRefreshToken(refreshToken, expiredAt);
+                    token.updateRefreshToken(refreshToken, expiresAt);
                     return token;
                 })
-                .orElseGet(() -> UserToken.createToken(user, refreshToken));
+                .orElseGet(() -> UserToken.createToken(user, refreshToken, expiresAt));
         userTokenRepository.save(userToken);
 
         response.addCookie(createRefreshTokenCookie(refreshToken));
 
-        String redirectUrl = "http://localhost:3000/callback";
+        String redirectUrl = "http://localhost:5173/auth/callback";
         getRedirectStrategy().sendRedirect(request, response, redirectUrl);
     }
 
@@ -68,7 +68,7 @@ public class OAuth2SuccessHandler  extends SimpleUrlAuthenticationSuccessHandler
         cookie.setHttpOnly(true);
         cookie.setSecure(false); // 로컬 개발에서는 false
         cookie.setPath("/");
-        cookie.setMaxAge(60 * 60 * 24 * 7);
+        cookie.setMaxAge((int)jwtConfig.getRefreshTokenExpiration());
         return cookie;
     }
 
