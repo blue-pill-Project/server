@@ -102,7 +102,9 @@ public class CharacterCardService {
             card.replaceExamplePosts(request.getExamplePosts());
         }
 
-        card.incrementVersion();
+        if (request.hasContentChanges()) {
+            card.incrementVersion();
+        }
     }
 
     public CharacterCardListResponse getLibrary(String keyword, CharacterSortType sort,

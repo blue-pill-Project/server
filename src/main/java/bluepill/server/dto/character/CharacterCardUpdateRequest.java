@@ -24,4 +24,12 @@ public class CharacterCardUpdateRequest {
     private List<@Size(max = 1000) String> examplePosts;
 
     private Boolean isPublic;
+
+    public boolean hasContentChanges() {
+        return name != null
+                || description != null
+                || imageUrl != null
+                || prompt != null
+                || examplePosts != null;
+    }
 }
