@@ -8,6 +8,7 @@ import bluepill.server.dto.character.CharacterCardDetailResponse;
 import bluepill.server.dto.character.CharacterCardListItem;
 import bluepill.server.dto.character.CharacterCardListResponse;
 import bluepill.server.dto.character.CharacterCardUpdateRequest;
+import bluepill.server.dto.character.CharacterCardVisibilityRequest;
 import bluepill.server.dto.character.CharacterSortType;
 import bluepill.server.dto.character.UserCharacterCardListItem;
 import bluepill.server.dto.character.UserCharacterCardListResponse;
@@ -105,6 +106,18 @@ public class CharacterCardService {
         if (request.hasContentChanges()) {
             card.incrementVersion();
         }
+    }
+
+    @Transactional
+    public void updateVisibility(UUID publicId, Long userId, Boolean isPublic) {
+        CharacterCard card = characterCardRepository.findByPublicIdAndIsDeletedFalse(publicId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.CHARACTER_CARD_NOT_FOUND));
+
+        if (!card.getCreator().getUserId().equals(userId)) {
+            throw new BusinessException(ErrorCode.CHARACTER_CARD_VISIBILITY_FORBIDDEN);
+        }
+
+        card.updateVisibility(isPublic);
     }
 
     public CharacterCardListResponse getLibrary(String keyword, CharacterSortType sort,

@@ -99,4 +99,8 @@ public class CharacterCard extends BaseTimeEntity {
             ));
         }
     }
+
+    public void updateVisibility(Boolean isPublic) {
+        this.isPublic = isPublic;
+    }
 }
