@@ -37,11 +37,10 @@ public class OAuth2SuccessHandler  extends SimpleUrlAuthenticationSuccessHandler
         //Provider 가져오기
         String registrationId = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
         User.Provider provider = User.Provider.valueOf(registrationId.toUpperCase());
-        String providerId = oAth2User.getAttribute("sub");
+        String providerId = getProviderId(provider, oAth2User);
 
         //DB에서 user 조회
         User user = userRepository.findByProviderAndProviderId(provider, providerId).orElseThrow(()-> new BusinessException(ErrorCode.USER_NOT_FOUND));
-
 
         // JWT 발급
         String refreshToken = jwtProvider.generateRefreshToken(user);
@@ -71,5 +70,12 @@ public class OAuth2SuccessHandler  extends SimpleUrlAuthenticationSuccessHandler
         cookie.setPath("/");
         cookie.setMaxAge(60 * 60 * 24 * 7);
         return cookie;
+    }
+
+    private String getProviderId(User.Provider provider, OAuth2User oAuth2User) {
+        return switch(provider){
+            case GOOGLE -> oAuth2User.getAttribute("sub");
+            case DISCORD -> oAuth2User.getAttribute("id");
+        };
     }
 }

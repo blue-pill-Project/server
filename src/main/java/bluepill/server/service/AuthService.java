@@ -30,7 +30,8 @@ public class AuthService {
         User user = userToken.getUser();
 
         String accessToken = "Bearer " + jwtProvider.generateAccessToken(user);
+        boolean isNewUser = user.getNickname() == null;
 
-        return new TokenResponse(accessToken);
+        return new TokenResponse(accessToken, isNewUser);
     }
 }
