@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserToken {
+public class UserToken extends BaseTimeEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,33 +24,26 @@ public class UserToken {
     private Long tokenId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false, unique=true)
     private User user;
 
     @Column(name = "refresh_token", nullable = false)
     private String refreshToken;
 
-    @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
+    @Column(name = "expires_at", nullable = false)
+    private LocalDateTime expiresAt;
 
-    @Column(name = "expired_at", nullable = false)
-    private LocalDateTime expiredAt;
-
-    @UpdateTimestamp
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
     // 토큰 생성
-    public static UserToken createToken(User user, String refreshToken) {
+    public static UserToken createToken(User user, String refreshToken, LocalDateTime expiresAt) {
         return UserToken.builder()
                 .user(user)
                 .refreshToken(refreshToken)
-                .expiredAt(LocalDateTime.now().plusDays(7))
+                .expiresAt(expiresAt)
                 .build();
     }
 
-    public void updateRefreshToken(String refreshToken, LocalDateTime expiredAt) {
+    public void updateRefreshToken(String refreshToken, LocalDateTime expiresAt) {
         this.refreshToken = refreshToken;
-        this.expiredAt = LocalDateTime.now().plusDays(7);
+        this.expiresAt = expiresAt;
     }
 }

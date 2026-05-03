@@ -1,6 +1,5 @@
 package bluepill.server.jwt;
 
-import bluepill.server.config.JwtConfig;
 import bluepill.server.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
