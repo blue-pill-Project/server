@@ -25,8 +25,8 @@ public class DevAuthController {
     private final JwtProvider jwtProvider;
 
     @Operation(
-            summary = "테스트용 accessToken 발급",
-            description = "개발/테스트 환경에서 userId로 accessToken을 발급합니다. 운영 환경에서는 비활성화됩니다."
+            summary = "개발용 accessToken 발급",
+            description = "개발 환경에서 userId로 accessToken을 발급합니다. 운영 환경에서는 비활성화됩니다."
     )
     @PostMapping
     public ApiResponse<TokenResponse> issueAccessToken(
@@ -37,7 +37,7 @@ public class DevAuthController {
         String accessToken = jwtProvider.generateAccessToken(user);
 
         return ApiResponse.success(
-                "테스트용 accessToken이 발급되었습니다.",
+                "개발용 토큰 발급 성공",
                 new TokenResponse(accessToken, user.getNickname() == null)
         );
     }
