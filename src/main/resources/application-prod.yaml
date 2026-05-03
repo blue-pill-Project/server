@@ -18,3 +18,12 @@ spring:
 springdoc:
   swagger-ui:
     enabled: false
+  api-docs:
+    enabled: false
+
+app:
+  frontend:
+    oauth-callback-url: ${FRONTEND_OAUTH_CALLBACK_URL}
+  cookie:
+    secure: true
+    same-site: ${COOKIE_SAME_SITE:None}

@@ -6,6 +6,7 @@ import bluepill.server.dto.user.TokenResponse;
 import bluepill.server.exception.BusinessException;
 import bluepill.server.exception.ErrorCode;
 import bluepill.server.jwt.JwtProvider;
+import bluepill.server.repository.UserRepository;
 import bluepill.server.repository.UserTokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ public class AuthService {
 
     private final JwtProvider jwtProvider;
     private final UserTokenRepository userTokenRepository;
+    private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
     public TokenResponse reissue(String refreshToken) {
@@ -33,5 +35,11 @@ public class AuthService {
         boolean isNewUser = user.getNickname() == null;
 
         return new TokenResponse(accessToken, isNewUser);
+    }
+
+    public void logout(String refreshToken) {
+        if(refreshToken == null || refreshToken.isBlank()) return;
+
+        userTokenRepository.findByRefreshToken(refreshToken).ifPresent(userTokenRepository :: delete);
     }
 }
