@@ -7,8 +7,19 @@ spring:
     virtual:
       enabled: true
   config:
-    import:
+    import: 
       - optional:application-secrets.yml
+
+jwt:
+  access-token-expiration: ${JWT_ACCESS_TOKEN_EXPIRATION:3600}
+  refresh-token-expiration: ${JWT_REFRESH_TOKEN_EXPIRATION:604800}
+
+app:
+  frontend:
+    oauth-callback-url: ${FRONTEND_OAUTH_CALLBACK_URL:http://localhost:5173/auth/callback}
+  cookie:
+    secure: ${COOKIE_SECURE:false}
+    same-site: ${COOKIE_SAME_SITE:Lax}
 
 springdoc:
   swagger-ui:

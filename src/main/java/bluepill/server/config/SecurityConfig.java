@@ -32,11 +32,13 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
-                                "/auth/reissue").permitAll()
+                                "/auth/reissue",
+                                "/auth/logout").permitAll()
 
                         //그 외에는 요청 인증 필요
                         .anyRequest().authenticated()
                 )
+                //oauth2 엔드포인트를 설정
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo -> userInfo
                             .userService(oAuth2UserService)
