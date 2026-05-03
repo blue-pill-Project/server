@@ -42,6 +42,9 @@ jwt:
   access-token-expiration: ${JWT_ACCESS_TOKEN_EXPIRATION:3600}
   refresh-token-expiration: ${JWT_REFRESH_TOKEN_EXPIRATION:604800}
 
+jwt:
+  access-token-expiration: 86400
+
 app:
   frontend:
     oauth-callback-url: http://localhost:5173/auth/callback
