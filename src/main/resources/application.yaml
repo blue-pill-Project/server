@@ -7,7 +7,7 @@ spring:
     virtual:
       enabled: true
   config:
-    import:
+    import: 
       - optional:application-secrets.yml
 
 jwt:

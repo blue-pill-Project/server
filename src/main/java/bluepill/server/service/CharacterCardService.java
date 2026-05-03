@@ -7,6 +7,8 @@ import bluepill.server.dto.character.CharacterCardCreateRequest;
 import bluepill.server.dto.character.CharacterCardDetailResponse;
 import bluepill.server.dto.character.CharacterCardListItem;
 import bluepill.server.dto.character.CharacterCardListResponse;
+import bluepill.server.dto.character.CharacterCardUpdateRequest;
+import bluepill.server.dto.character.CharacterCardVisibilityRequest;
 import bluepill.server.dto.character.CharacterSortType;
 import bluepill.server.dto.character.UserCharacterCardListItem;
 import bluepill.server.dto.character.UserCharacterCardListResponse;
@@ -63,6 +65,59 @@ public class CharacterCardService {
         }
 
         return characterCardRepository.save(card);
+    }
+
+    @Transactional
+    public void deleteCharacterCard(UUID publicId, Long userId) {
+        CharacterCard card = characterCardRepository.findByPublicIdAndIsDeletedFalse(publicId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.CHARACTER_CARD_NOT_FOUND));
+
+        if (!card.getCreator().getUserId().equals(userId)) {
+            throw new BusinessException(ErrorCode.CHARACTER_CARD_FORBIDDEN);
+        }
+
+        card.softDelete();
+    }
+
+    @Transactional
+    public void updateCharacterCard(UUID publicId, Long userId, CharacterCardUpdateRequest request) {
+        // TODO: imageUrl(S3 temp key) 유효성 검증 (INVALID_IMAGE_KEY)
+        // TODO: 새 imageUrl이 들어오면 temp/ → characters/ 이동, 기존 이미지 정리
+
+        CharacterCard card = characterCardRepository.findByPublicIdAndIsDeletedFalse(publicId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.CHARACTER_CARD_NOT_FOUND));
+
+        if (!card.getCreator().getUserId().equals(userId)) {
+            throw new BusinessException(ErrorCode.CHARACTER_CARD_UPDATE_FORBIDDEN);
+        }
+
+        card.update(
+                request.getName(),
+                request.getDescription(),
+                request.getImageUrl(),
+                request.getPrompt(),
+                request.getIsPublic()
+        );
+
+        if (request.getExamplePosts() != null) {
+            card.replaceExamplePosts(request.getExamplePosts());
+        }
+
+        if (request.hasContentChanges()) {
+            card.incrementVersion();
+        }
+    }
+
+    @Transactional
+    public void updateVisibility(UUID publicId, Long userId, Boolean isPublic) {
+        CharacterCard card = characterCardRepository.findByPublicIdAndIsDeletedFalse(publicId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.CHARACTER_CARD_NOT_FOUND));
+
+        if (!card.getCreator().getUserId().equals(userId)) {
+            throw new BusinessException(ErrorCode.CHARACTER_CARD_VISIBILITY_FORBIDDEN);
+        }
+
+        card.updateVisibility(isPublic);
     }
 
     public CharacterCardListResponse getLibrary(String keyword, CharacterSortType sort,
