@@ -6,6 +6,7 @@ import bluepill.server.dto.character.CharacterCardCreateRequest;
 import bluepill.server.dto.character.CharacterCardCreateResponse;
 import bluepill.server.dto.character.CharacterCardDetailResponse;
 import bluepill.server.dto.character.CharacterCardListResponse;
+import bluepill.server.dto.character.CharacterCardUpdateRequest;
 import bluepill.server.dto.character.CharacterSortType;
 import bluepill.server.dto.common.ApiResponse;
 import bluepill.server.service.CharacterCardService;
@@ -18,6 +19,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -92,5 +94,18 @@ public class CharacterCardController {
 
         return ResponseEntity.ok(
                 ApiResponse.success("캐릭터 카드가 성공적으로 삭제되었습니다."));
+    }
+
+    @PatchMapping("/{publicId}")
+    public ResponseEntity<ApiResponse<Void>> updateCharacterCard(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @PathVariable UUID publicId,
+            @RequestBody @Valid CharacterCardUpdateRequest request) {
+
+        Long userId = Long.parseLong(userDetails.getUsername());
+        characterCardService.updateCharacterCard(publicId, userId, request);
+
+        return ResponseEntity.ok(
+                ApiResponse.success("캐릭터 카드가 성공적으로 수정되었습니다."));
     }
 }

@@ -52,7 +52,7 @@ public class CharacterCard extends BaseTimeEntity {
     @JoinColumn(name = "created_by", nullable = false)
     private User creator;
 
-    @OneToMany(mappedBy = "characterCard", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "characterCard", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ExamplePost> examplePosts = new ArrayList<>();
 
     @Builder
@@ -81,5 +81,22 @@ public class CharacterCard extends BaseTimeEntity {
 
     public void softDelete() {
         this.isDeleted = true;
+    }
+
+    public void update(String name, String description, String imageUrl, String prompt, Boolean isPublic) {
+        if (name != null) this.name = name;
+        if (description != null) this.description = description;
+        if (imageUrl != null) this.imageUrl = imageUrl;
+        if (prompt != null) this.prompt = prompt;
+        if (isPublic != null) this.isPublic = isPublic;
+    }
+
+    public void replaceExamplePosts(List<String> contents) {
+        this.examplePosts.clear();
+        if (contents != null) {
+            contents.forEach(content -> this.examplePosts.add(
+                    ExamplePost.builder().characterCard(this).content(content).build()
+            ));
+        }
     }
 }
