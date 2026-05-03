@@ -33,7 +33,9 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/auth/reissue",
-                                "/auth/logout").permitAll()
+                                "/auth/logout",
+                                "/dev/token/**"
+                                ).permitAll()
 
                         //그 외에는 요청 인증 필요
                         .anyRequest().authenticated()
