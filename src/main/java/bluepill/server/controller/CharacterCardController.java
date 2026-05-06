@@ -1,5 +1,6 @@
 package bluepill.server.controller;
 
+import bluepill.server.annotation.CurrentUserId;
 import bluepill.server.domain.CharacterCard;
 import bluepill.server.domain.User;
 import bluepill.server.dto.character.CharacterCardCreateRequest;
@@ -16,8 +17,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -40,11 +39,9 @@ public class CharacterCardController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<CharacterCardCreateResponse>> createCharacterCard(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @CurrentUserId Long userId,
             @RequestBody @Valid CharacterCardCreateRequest request) {
 
-        // TODO: 인증 구현 확정 후 검토. 현재 가정: JWT sub = users.id (internal BIGINT)
-        Long userId = Long.parseLong(userDetails.getUsername());
         User creator = userService.findById(userId);
 
         CharacterCard card = characterCardService.createCharacterCard(request, creator);
@@ -72,12 +69,8 @@ public class CharacterCardController {
 
     @GetMapping("/{publicId}")
     public ResponseEntity<ApiResponse<CharacterCardDetailResponse>> getCharacterCardDetail(
-            @AuthenticationPrincipal(errorOnInvalidType = false) UserDetails userDetails,
+            @CurrentUserId Long viewerId,
             @PathVariable UUID publicId) {
-
-        Long viewerId = (userDetails != null)
-                ? Long.parseLong(userDetails.getUsername())
-                : null;
 
         CharacterCardDetailResponse response = characterCardService.getDetail(publicId, viewerId);
 
@@ -87,10 +80,9 @@ public class CharacterCardController {
 
     @DeleteMapping("/{publicId}")
     public ResponseEntity<ApiResponse<Void>> deleteCharacterCard(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @CurrentUserId Long userId,
             @PathVariable UUID publicId) {
 
-        Long userId = Long.parseLong(userDetails.getUsername());
         characterCardService.deleteCharacterCard(publicId, userId);
 
         return ResponseEntity.ok(
@@ -99,11 +91,10 @@ public class CharacterCardController {
 
     @PatchMapping("/{publicId}")
     public ResponseEntity<ApiResponse<Void>> updateCharacterCard(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @CurrentUserId Long userId,
             @PathVariable UUID publicId,
             @RequestBody @Valid CharacterCardUpdateRequest request) {
 
-        Long userId = Long.parseLong(userDetails.getUsername());
         characterCardService.updateCharacterCard(publicId, userId, request);
 
         return ResponseEntity.ok(
@@ -112,11 +103,10 @@ public class CharacterCardController {
 
     @PatchMapping("/{publicId}/visibility")
     public ResponseEntity<ApiResponse<Void>> updateVisibility(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @CurrentUserId Long userId,
             @PathVariable UUID publicId,
             @RequestBody @Valid CharacterCardVisibilityRequest request) {
 
-        Long userId = Long.parseLong(userDetails.getUsername());
         characterCardService.updateVisibility(publicId, userId, request.getIsPublic());
 
         return ResponseEntity.ok(
