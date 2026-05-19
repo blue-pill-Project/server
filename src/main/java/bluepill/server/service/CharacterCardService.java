@@ -1,14 +1,13 @@
 package bluepill.server.service;
 
 import bluepill.server.domain.CharacterCard;
-import bluepill.server.domain.ExamplePost;
+import bluepill.server.domain.ExampleDialogue;
 import bluepill.server.domain.User;
 import bluepill.server.dto.character.CharacterCardCreateRequest;
 import bluepill.server.dto.character.CharacterCardDetailResponse;
 import bluepill.server.dto.character.CharacterCardListItem;
 import bluepill.server.dto.character.CharacterCardListResponse;
 import bluepill.server.dto.character.CharacterCardUpdateRequest;
-import bluepill.server.dto.character.CharacterCardVisibilityRequest;
 import bluepill.server.dto.character.CharacterSortType;
 import bluepill.server.dto.character.UserCharacterCardListItem;
 import bluepill.server.dto.character.UserCharacterCardListResponse;
@@ -54,13 +53,13 @@ public class CharacterCardService {
                 .creator(creator)
                 .build();
 
-        if (request.getExamplePosts() != null) {
-            request.getExamplePosts().forEach(content -> {
-                ExamplePost post = ExamplePost.builder()
+        if (request.getExampleDialogues() != null) {
+            request.getExampleDialogues().forEach(content -> {
+                ExampleDialogue dialogue = ExampleDialogue.builder()
                         .characterCard(card)
                         .content(content)
                         .build();
-                card.addExamplePost(post);
+                card.addExampleDialogue(dialogue);
             });
         }
 
@@ -99,8 +98,8 @@ public class CharacterCardService {
                 request.getIsPublic()
         );
 
-        if (request.getExamplePosts() != null) {
-            card.replaceExamplePosts(request.getExamplePosts());
+        if (request.getExampleDialogues() != null) {
+            card.replaceExampleDialogues(request.getExampleDialogues());
         }
 
         if (request.hasContentChanges()) {
@@ -150,10 +149,10 @@ public class CharacterCardService {
         }
 
         if (isOwner) {
-            List<String> examplePostContents = card.getExamplePosts().stream()
-                    .map(ExamplePost::getContent)
+            List<String> exampleDialogueContents = card.getExampleDialogues().stream()
+                    .map(ExampleDialogue::getContent)
                     .toList();
-            return CharacterCardDetailResponse.forOwner(card, examplePostContents);
+            return CharacterCardDetailResponse.forOwner(card, exampleDialogueContents);
         }
 
         return CharacterCardDetailResponse.forViewer(card);

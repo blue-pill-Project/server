@@ -53,7 +53,7 @@ public class CharacterCard extends BaseTimeEntity {
     private User creator;
 
     @OneToMany(mappedBy = "characterCard", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ExamplePost> examplePosts = new ArrayList<>();
+    private List<ExampleDialogue> exampleDialogues = new ArrayList<>();
 
     @Builder
     public CharacterCard(UUID publicId, String name, Long code, String description,
@@ -71,8 +71,8 @@ public class CharacterCard extends BaseTimeEntity {
         this.creator = creator;
     }
 
-    public void addExamplePost(ExamplePost post) {
-        this.examplePosts.add(post);
+    public void addExampleDialogue(ExampleDialogue dialogue) {
+        this.exampleDialogues.add(dialogue);
     }
 
     public void incrementVersion() {
@@ -91,11 +91,11 @@ public class CharacterCard extends BaseTimeEntity {
         if (isPublic != null) this.isPublic = isPublic;
     }
 
-    public void replaceExamplePosts(List<String> contents) {
-        this.examplePosts.clear();
+    public void replaceExampleDialogues(List<String> contents) {
+        this.exampleDialogues.clear();
         if (contents != null) {
-            contents.forEach(content -> this.examplePosts.add(
-                    ExamplePost.builder().characterCard(this).content(content).build()
+            contents.forEach(content -> this.exampleDialogues.add(
+                    ExampleDialogue.builder().characterCard(this).content(content).build()
             ));
         }
     }
