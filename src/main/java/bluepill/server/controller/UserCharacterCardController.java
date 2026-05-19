@@ -1,12 +1,11 @@
 package bluepill.server.controller;
 
+import bluepill.server.annotation.CurrentUserId;
 import bluepill.server.dto.character.UserCharacterCardListResponse;
 import bluepill.server.dto.common.ApiResponse;
 import bluepill.server.service.CharacterCardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,14 +23,10 @@ public class UserCharacterCardController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<UserCharacterCardListResponse>> getUserCharacterCards(
-            @AuthenticationPrincipal(errorOnInvalidType = false) UserDetails userDetails,
+            @CurrentUserId Long viewerId,
             @PathVariable UUID publicId,
             @RequestParam(required = false) UUID cursor,
             @RequestParam(defaultValue = "10") int size) {
-
-        Long viewerId = (userDetails != null)
-                ? Long.parseLong(userDetails.getUsername())
-                : null;
 
         UserCharacterCardListResponse response = characterCardService.getUserCharacterCards(
                 publicId, viewerId, cursor, size);

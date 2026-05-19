@@ -52,8 +52,8 @@ public class CharacterCard extends BaseTimeEntity {
     @JoinColumn(name = "created_by", nullable = false)
     private User creator;
 
-    @OneToMany(mappedBy = "characterCard", cascade = CascadeType.ALL)
-    private List<ExamplePost> examplePosts = new ArrayList<>();
+    @OneToMany(mappedBy = "characterCard", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ExampleDialogue> exampleDialogues = new ArrayList<>();
 
     @Builder
     public CharacterCard(UUID publicId, String name, Long code, String description,
@@ -71,11 +71,36 @@ public class CharacterCard extends BaseTimeEntity {
         this.creator = creator;
     }
 
-    public void addExamplePost(ExamplePost post) {
-        this.examplePosts.add(post);
+    public void addExampleDialogue(ExampleDialogue dialogue) {
+        this.exampleDialogues.add(dialogue);
     }
 
     public void incrementVersion() {
         this.version++;
+    }
+
+    public void softDelete() {
+        this.isDeleted = true;
+    }
+
+    public void update(String name, String description, String imageUrl, String prompt, Boolean isPublic) {
+        if (name != null) this.name = name;
+        if (description != null) this.description = description;
+        if (imageUrl != null) this.imageUrl = imageUrl;
+        if (prompt != null) this.prompt = prompt;
+        if (isPublic != null) this.isPublic = isPublic;
+    }
+
+    public void replaceExampleDialogues(List<String> contents) {
+        this.exampleDialogues.clear();
+        if (contents != null) {
+            contents.forEach(content -> this.exampleDialogues.add(
+                    ExampleDialogue.builder().characterCard(this).content(content).build()
+            ));
+        }
+    }
+
+    public void updateVisibility(Boolean isPublic) {
+        this.isPublic = isPublic;
     }
 }

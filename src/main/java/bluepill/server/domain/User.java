@@ -36,9 +36,6 @@ public class User extends BaseTimeEntity {
     @Column(name = "provider", nullable = false, length = 20)
     private Provider provider;
 
-    @Column(name = "account_name", length = 20)
-    private String accountName;
-
     @Column(name = "nickname", length = 15)
     private String nickname;
 

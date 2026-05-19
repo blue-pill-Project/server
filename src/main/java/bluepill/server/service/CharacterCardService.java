@@ -1,12 +1,13 @@
 package bluepill.server.service;
 
 import bluepill.server.domain.CharacterCard;
-import bluepill.server.domain.ExamplePost;
+import bluepill.server.domain.ExampleDialogue;
 import bluepill.server.domain.User;
 import bluepill.server.dto.character.CharacterCardCreateRequest;
 import bluepill.server.dto.character.CharacterCardDetailResponse;
 import bluepill.server.dto.character.CharacterCardListItem;
 import bluepill.server.dto.character.CharacterCardListResponse;
+import bluepill.server.dto.character.CharacterCardUpdateRequest;
 import bluepill.server.dto.character.CharacterSortType;
 import bluepill.server.dto.character.UserCharacterCardListItem;
 import bluepill.server.dto.character.UserCharacterCardListResponse;
@@ -52,17 +53,70 @@ public class CharacterCardService {
                 .creator(creator)
                 .build();
 
-        if (request.getExamplePosts() != null) {
-            request.getExamplePosts().forEach(content -> {
-                ExamplePost post = ExamplePost.builder()
+        if (request.getExampleDialogues() != null) {
+            request.getExampleDialogues().forEach(content -> {
+                ExampleDialogue dialogue = ExampleDialogue.builder()
                         .characterCard(card)
                         .content(content)
                         .build();
-                card.addExamplePost(post);
+                card.addExampleDialogue(dialogue);
             });
         }
 
         return characterCardRepository.save(card);
+    }
+
+    @Transactional
+    public void deleteCharacterCard(UUID publicId, Long userId) {
+        CharacterCard card = characterCardRepository.findByPublicIdAndIsDeletedFalse(publicId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.CHARACTER_CARD_NOT_FOUND));
+
+        if (!card.getCreator().getUserId().equals(userId)) {
+            throw new BusinessException(ErrorCode.CHARACTER_CARD_FORBIDDEN);
+        }
+
+        card.softDelete();
+    }
+
+    @Transactional
+    public void updateCharacterCard(UUID publicId, Long userId, CharacterCardUpdateRequest request) {
+        // TODO: imageUrl(S3 temp key) 유효성 검증 (INVALID_IMAGE_KEY)
+        // TODO: 새 imageUrl이 들어오면 temp/ → characters/ 이동, 기존 이미지 정리
+
+        CharacterCard card = characterCardRepository.findByPublicIdAndIsDeletedFalse(publicId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.CHARACTER_CARD_NOT_FOUND));
+
+        if (!card.getCreator().getUserId().equals(userId)) {
+            throw new BusinessException(ErrorCode.CHARACTER_CARD_UPDATE_FORBIDDEN);
+        }
+
+        card.update(
+                request.getName(),
+                request.getDescription(),
+                request.getImageUrl(),
+                request.getPrompt(),
+                request.getIsPublic()
+        );
+
+        if (request.getExampleDialogues() != null) {
+            card.replaceExampleDialogues(request.getExampleDialogues());
+        }
+
+        if (request.hasContentChanges()) {
+            card.incrementVersion();
+        }
+    }
+
+    @Transactional
+    public void updateVisibility(UUID publicId, Long userId, Boolean isPublic) {
+        CharacterCard card = characterCardRepository.findByPublicIdAndIsDeletedFalse(publicId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.CHARACTER_CARD_NOT_FOUND));
+
+        if (!card.getCreator().getUserId().equals(userId)) {
+            throw new BusinessException(ErrorCode.CHARACTER_CARD_VISIBILITY_FORBIDDEN);
+        }
+
+        card.updateVisibility(isPublic);
     }
 
     public CharacterCardListResponse getLibrary(String keyword, CharacterSortType sort,
@@ -95,10 +149,10 @@ public class CharacterCardService {
         }
 
         if (isOwner) {
-            List<String> examplePostContents = card.getExamplePosts().stream()
-                    .map(ExamplePost::getContent)
+            List<String> exampleDialogueContents = card.getExampleDialogues().stream()
+                    .map(ExampleDialogue::getContent)
                     .toList();
-            return CharacterCardDetailResponse.forOwner(card, examplePostContents);
+            return CharacterCardDetailResponse.forOwner(card, exampleDialogueContents);
         }
 
         return CharacterCardDetailResponse.forViewer(card);

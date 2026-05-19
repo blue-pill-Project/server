@@ -84,6 +84,11 @@ public class GlobalExceptionHandler {
             return ErrorCode.TERMS_NOT_AGREED;
         }
 
+        // 캐릭터 카드 공개 여부 관련 에러
+        if ("isPublic".equals(field) && "NotNull".equals(code)) {
+            return ErrorCode.INVALID_INPUT;
+        }
+
         // 그 외 알 수 없는 에러는 일반 파라미터 에러로 처리
         return ErrorCode.INVALID_PARAMETER;
     }

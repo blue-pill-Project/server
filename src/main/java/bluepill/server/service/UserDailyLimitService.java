@@ -19,7 +19,7 @@ import java.time.ZoneId;
 public class UserDailyLimitService {
 
     private static final ZoneId KST = ZoneId.of("Asia/Seoul");
-    private static final int CHARACTER_CREATE_DAILY_LIMIT = 3;
+    private static final int CHARACTER_CREATE_DAILY_LIMIT = 30;
 
     private final UserDailyLimitRepository userDailyLimitRepository;
 

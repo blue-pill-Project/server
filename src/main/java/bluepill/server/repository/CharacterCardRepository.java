@@ -14,6 +14,8 @@ public interface CharacterCardRepository extends JpaRepository<CharacterCard, Lo
 
     Optional<CharacterCard> findByPublicId(UUID publicId);
 
+    Optional<CharacterCard> findByPublicIdAndIsDeletedFalse(UUID publicId);
+
     @Query("SELECT c FROM CharacterCard c " +
            "LEFT JOIN FETCH c.creator " +
            "WHERE c.publicId = :publicId AND c.isDeleted = false")
