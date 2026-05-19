@@ -25,7 +25,7 @@ public class CharacterCardDetailResponse {
 
     // 본인 생성 카드일 때만 채워짐 (아니면 null → JSON 직렬화 시 누락됨)
     private String prompt;
-    private List<String> examplePosts;
+    private List<String> exampleDialogues;
     private Boolean isPublic;
 
     private Long useCount;
@@ -33,7 +33,7 @@ public class CharacterCardDetailResponse {
     private Instant updatedAt;
 
     //본인 카드
-    public static CharacterCardDetailResponse forOwner(CharacterCard card, List<String> examplePostContents) {
+    public static CharacterCardDetailResponse forOwner(CharacterCard card, List<String> exampleDialogueContents) {
         return new CharacterCardDetailResponse(
                 card.getPublicId(),
                 card.getName(),
@@ -44,7 +44,7 @@ public class CharacterCardDetailResponse {
                 card.getCreator().getPublicId(),
                 card.getCreator().getNickname(),
                 card.getPrompt(),
-                examplePostContents,
+                exampleDialogueContents,
                 card.getIsPublic(),
                 card.getUseCnt(),
                 card.getCreatedAt(),
@@ -64,7 +64,7 @@ public class CharacterCardDetailResponse {
                 card.getCreator().getPublicId(),
                 card.getCreator().getNickname(),
                 null,    // prompt
-                null,    // examplePosts
+                null,    // exampleDialogues
                 null,    // isPublic
                 card.getUseCnt(),
                 card.getCreatedAt(),

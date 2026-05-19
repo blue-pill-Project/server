@@ -21,7 +21,8 @@ public class CharacterCardUpdateRequest {
     @Size(max = 2000)
     private String prompt;
 
-    private List<@Size(max = 1000) String> examplePosts;
+    @Size(max = 5)
+    private List<@Size(max = 100) String> exampleDialogues;
 
     private Boolean isPublic;
 
@@ -30,6 +31,6 @@ public class CharacterCardUpdateRequest {
                 || description != null
                 || imageUrl != null
                 || prompt != null
-                || examplePosts != null;
+                || exampleDialogues != null;
     }
 }

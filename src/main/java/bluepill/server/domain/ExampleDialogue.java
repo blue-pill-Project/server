@@ -15,14 +15,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "example_posts")
+@Table(name = "example_dialogues")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ExamplePost extends BaseTimeEntity {
+public class ExampleDialogue extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "example_post_id")
+    @Column(name = "example_dialogue_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -33,7 +33,7 @@ public class ExamplePost extends BaseTimeEntity {
     private String content;
 
     @Builder
-    public ExamplePost(CharacterCard characterCard, String content) {
+    public ExampleDialogue(CharacterCard characterCard, String content) {
         this.characterCard = characterCard;
         this.content = content;
     }

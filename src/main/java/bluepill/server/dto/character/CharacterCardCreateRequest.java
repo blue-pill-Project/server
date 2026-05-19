@@ -27,7 +27,8 @@ public class CharacterCardCreateRequest {
     @Size(max = 2000)
     private String prompt;
 
-    private List<@Size(max = 1000) String> examplePosts;
+    @Size(max = 5)
+    private List<@Size(max = 100) String> exampleDialogues;
 
     @NotNull
     private Boolean isPublic;
