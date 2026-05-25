@@ -5,6 +5,7 @@ import bluepill.server.dto.user.UserProfileResponse;
 import bluepill.server.dto.user.UserProfileUpdateRequest;
 import bluepill.server.exception.BusinessException;
 import bluepill.server.exception.ErrorCode;
+import bluepill.server.repository.CharacterCardRepository;
 import bluepill.server.repository.UserRepository;
 import bluepill.server.util.NicknameGenerator;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ import java.util.UUID;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final CharacterCardRepository characterCardRepository;
     private final NicknameGenerator nicknameGenerator;
 
     public User findById(Long id) {
@@ -37,9 +39,7 @@ public class UserService {
 
         boolean isOwner = userId != null && userId.equals(user.getUserId());
 
-        //todo: 캐릭터, 게시물 개수
-        long characterCnt = 0L;
-        long postCnt = 0L;
+        long characterCnt = characterCardRepository.countByCreatorAndIsDeletedFalse(user);
 
         return new UserProfileResponse(
                 user.getPublicId(),
@@ -49,7 +49,6 @@ public class UserService {
                 user.getPlan() != null ? user.getPlan().getId() : null,
                 user.getIsPublic(),
                 characterCnt,
-                postCnt,
                 isOwner
         );
     };

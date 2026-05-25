@@ -12,7 +12,6 @@ public record UserProfileResponse(
         Long planId,
         Boolean isPublic,
         Long characterCnt,
-        Long postCnt,
         boolean isOwner
 
 ) {
@@ -24,7 +23,6 @@ public record UserProfileResponse(
                 user.getEmail(),
                 user.getPlan() != null? user.getPlan().getId(): null,
                 user.getIsPublic(),
-                0L,
                 0L,
                 isOwner
         );
