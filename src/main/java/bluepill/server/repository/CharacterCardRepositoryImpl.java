@@ -22,6 +22,7 @@ public class CharacterCardRepositoryImpl implements CharacterCardRepositoryCusto
 
     @Override
     public List<CharacterCardListItem> findLibrary(
+            Long viewerId,
             String keyword,
             CharacterSortType sort,
             UUID cursor,
@@ -42,18 +43,27 @@ public class CharacterCardRepositoryImpl implements CharacterCardRepositoryCusto
                         u.nickname,
                         c.useCnt,
                         c.createdAt,
-                        c.updatedAt))
+                        c.updatedAt,
+                        c.isPublic))
                 .from(c)
                 .leftJoin(c.creator, u)
                 .where(
                         c.isDeleted.isFalse(),
-                        c.isPublic.isTrue(),
+                        visibleTo(c, viewerId),
                         keywordContains(c, u, keyword),
                         cursorCondition(c, sort, cursor)
                 )
                 .orderBy(orderBy(c, sort))
                 .limit(size + 1L)
                 .fetch();
+    }
+
+    // 공개 카드 OR (로그인 시) 본인이 만든 카드
+    private BooleanExpression visibleTo(QCharacterCard c, Long viewerId) {
+        if (viewerId == null) {
+            return c.isPublic.isTrue();
+        }
+        return c.isPublic.isTrue().or(c.creator.userId.eq(viewerId));
     }
 
     private BooleanExpression keywordContains(QCharacterCard c, QUser u, String keyword) {

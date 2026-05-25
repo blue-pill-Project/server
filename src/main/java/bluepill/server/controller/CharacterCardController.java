@@ -54,6 +54,7 @@ public class CharacterCardController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<CharacterCardListResponse>> getLibrary(
+            @CurrentUserId Long userId,
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) String sort,
             @RequestParam(required = false) UUID cursor,
@@ -61,7 +62,7 @@ public class CharacterCardController {
 
         CharacterSortType sortType = CharacterSortType.from(sort);
         CharacterCardListResponse response = characterCardService.getLibrary(
-                keyword, sortType, cursor, size);
+                userId, keyword, sortType, cursor, size);
 
         return ResponseEntity
                 .ok(ApiResponse.success("라이브러리 캐릭터 목록 조회 성공", response));
