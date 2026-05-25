@@ -10,6 +10,7 @@ import java.util.UUID;
 public interface CharacterCardRepositoryCustom {
 
     List<CharacterCardListItem> findLibrary(
+            Long viewerId,
             String keyword,
             CharacterSortType sort,
             UUID cursor,
