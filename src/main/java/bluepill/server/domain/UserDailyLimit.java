@@ -24,21 +24,13 @@ public class UserDailyLimit extends BaseTimeEntity {
     @Column(name = "character_create_count", nullable = false)
     private Integer characterCreateCount;
 
-    @Column(name = "image_generate_count", nullable = false)
-    private Integer imageGenerateCount;
-
     @Builder
     public UserDailyLimit(User user) {
         this.user = user;
         this.characterCreateCount = 0;
-        this.imageGenerateCount = 0;
     }
 
     public void increaseCharacterCreateCount() {
         this.characterCreateCount++;
-    }
-
-    public void increaseImageGenerateCount() {
-        this.imageGenerateCount++;
     }
 }
