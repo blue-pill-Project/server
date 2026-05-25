@@ -77,4 +77,8 @@ public class User extends BaseTimeEntity {
         this.nickname = nickname;
         if(imageUrl != null) this.imageUrl = imageUrl;
     }
+
+    public void togglePublic() {
+        this.isPublic = !this.isPublic;
+    }
 }

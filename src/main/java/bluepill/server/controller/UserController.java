@@ -47,4 +47,12 @@ public class UserController {
 
         return ApiResponse.success("프로필 수정 성공", response);
     }
+
+    @Operation(summary = "내 프로필 공개 여부 변경", description = "프로필 공개 여부를 변경합니다. 프로필 공개 여부에 따라 생성한 캐릭터 카드의 공개 여부도 함께 변경됩니다.")
+    @PatchMapping("/me/visibility")
+    public ApiResponse<Boolean> updateVisibility(@Parameter(hidden = true) @CurrentUserId Long userId){
+        boolean isPublic = userService.toggleVisibility(userId);
+
+        return ApiResponse.success("공개 여부 변경 성공", isPublic);
+    }
 }

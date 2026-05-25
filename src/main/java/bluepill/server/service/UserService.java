@@ -75,4 +75,16 @@ public class UserService {
         user.updateProfile(nickname, request.imageUrl());
         return UserProfileResponse.from(user,true);
     }
+
+    @Transactional
+    public boolean toggleVisibility(Long userId) {
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        user.togglePublic();
+        //캐릭터 카드 일괄 업데이트
+        characterCardRepository.updateIsPublicByCreator(userId, user.getIsPublic());
+
+        return user.getIsPublic();
+    }
 }

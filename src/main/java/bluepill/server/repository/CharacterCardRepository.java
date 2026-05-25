@@ -3,6 +3,7 @@ package bluepill.server.repository;
 import bluepill.server.domain.CharacterCard;
 import bluepill.server.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -22,4 +23,8 @@ public interface CharacterCardRepository extends JpaRepository<CharacterCard, Lo
            "WHERE c.publicId = :publicId AND c.isDeleted = false")
     Optional<CharacterCard> findDetailByPublicId(@Param("publicId") UUID publicId);
     long countByCreatorAndIsDeletedFalse(User user);
+
+    @Modifying
+    @Query("UPDATE CharacterCard c SET c.isPublic = :isPublic WHERE c.creator.userId = :creatorId AND c.isDeleted = false")
+    void updateIsPublicByCreator(@Param("creatorId") Long creatorId, @Param("isPublic") Boolean isPublic);
 }
