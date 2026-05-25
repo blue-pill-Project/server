@@ -21,4 +21,5 @@ public class CharacterCardListItem {
     private Long useCount;
     private Instant createdAt;
     private Instant updatedAt;
+    private Boolean isPublic;
 }

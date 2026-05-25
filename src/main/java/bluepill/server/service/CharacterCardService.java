@@ -119,10 +119,10 @@ public class CharacterCardService {
         card.updateVisibility(isPublic);
     }
 
-    public CharacterCardListResponse getLibrary(String keyword, CharacterSortType sort,
+    public CharacterCardListResponse getLibrary(Long viewerId, String keyword, CharacterSortType sort,
                                                 UUID cursor, int size) {
         List<CharacterCardListItem> result = characterCardRepository.findLibrary(
-                keyword, sort, cursor, size);
+                viewerId, keyword, sort, cursor, size);
 
         boolean hasNext = result.size() > size;
         if (hasNext) {
