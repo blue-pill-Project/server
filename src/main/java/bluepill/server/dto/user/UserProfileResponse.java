@@ -1,5 +1,7 @@
 package bluepill.server.dto.user;
 
+import bluepill.server.domain.User;
+
 import java.util.UUID;
 
 public record UserProfileResponse(
@@ -10,8 +12,19 @@ public record UserProfileResponse(
         Long planId,
         Boolean isPublic,
         Long characterCnt,
-        Long postCnt,
         boolean isOwner
 
 ) {
+    public static UserProfileResponse from(User user, boolean isOwner) {
+        return new UserProfileResponse(
+                user.getPublicId(),
+                user.getNickname(),
+                user.getImageUrl(),
+                user.getEmail(),
+                user.getPlan() != null? user.getPlan().getId(): null,
+                user.getIsPublic(),
+                0L,
+                isOwner
+        );
+    }
 }

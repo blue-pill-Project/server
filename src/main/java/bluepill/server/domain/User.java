@@ -36,7 +36,7 @@ public class User extends BaseTimeEntity {
     @Column(name = "provider", nullable = false, length = 20)
     private Provider provider;
 
-    @Column(name = "nickname", length = 15)
+    @Column(name = "nickname", unique = true, length = 15)
     private String nickname;
 
     @Column(name = "email", length = 255)
@@ -71,5 +71,10 @@ public class User extends BaseTimeEntity {
                 .provider(provider)
                 .email(email)
                 .build();
+    }
+
+    public void updateProfile(String nickname, String imageUrl) {
+        this.nickname = nickname;
+        if(imageUrl != null) this.imageUrl = imageUrl;
     }
 }
