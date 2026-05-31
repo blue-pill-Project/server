@@ -33,13 +33,13 @@ public class CharacterCard extends BaseTimeEntity {
     @Column(nullable = false)
     private Integer version;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String description;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String prompt;
 
-    @Column(name = "image_url")
+    @Column(name = "image_url", nullable = false)
     private String imageUrl;
 
     private Long useCnt;
