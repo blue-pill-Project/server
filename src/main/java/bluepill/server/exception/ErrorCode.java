@@ -27,12 +27,14 @@ public enum ErrorCode {
     CHARACTER_CARD_FORBIDDEN(HttpStatus.FORBIDDEN, "본인이 생성한 캐릭터 카드만 삭제 가능합니다."),
     CHARACTER_CARD_UPDATE_FORBIDDEN(HttpStatus.FORBIDDEN, "본인이 생성한 캐릭터 카드만 수정 가능합니다."),
     CHARACTER_CARD_VISIBILITY_FORBIDDEN(HttpStatus.FORBIDDEN, "본인이 생성한 캐릭터 카드만 설정 가능합니다."),
+    LOG_ROOM_FORBIDDEN(HttpStatus.FORBIDDEN, "접근 권한이 없는 로그방입니다."),
 
     // 404 Not Found
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 유저입니다."),
     USER_NOT_FOUND_LOGOUT(HttpStatus.NOT_FOUND, "이미 로그아웃 된 사용자입니다."),
     ALREADY_DELETED(HttpStatus.NOT_FOUND, "이미 탈퇴한 사용자입니다."),
     CHARACTER_CARD_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않거나 삭제된 캐릭터 카드입니다."),
+    LOG_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 로그방입니다."),
 
     // 409 Conflict
     NICKNAME_DUPLICATION(HttpStatus.CONFLICT, "이미 사용중인 닉네임입니다."),
