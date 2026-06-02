@@ -3,6 +3,7 @@ package bluepill.server.controller;
 import bluepill.server.annotation.CurrentUserId;
 import bluepill.server.dto.common.ApiResponse;
 import bluepill.server.dto.logroom.DayLogTimeSlot;
+import bluepill.server.dto.logroom.LogCharacterCardResponse;
 import bluepill.server.dto.logroom.LogRoomCreateRequest;
 import bluepill.server.dto.logroom.LogRoomCreateResponse;
 import bluepill.server.dto.logroom.LogRoomListResponse;
@@ -65,5 +66,17 @@ public class LogRoomController {
 
         return ResponseEntity.ok(
                 ApiResponse.success("하루 로그 조회 성공", response));
+    }
+
+    @GetMapping("/{publicId}/members/{memberPublicId}")
+    public ResponseEntity<ApiResponse<LogCharacterCardResponse>> getLogCharacterCard(
+            @CurrentUserId Long userId,
+            @PathVariable UUID publicId,
+            @PathVariable UUID memberPublicId) {
+
+        LogCharacterCardResponse response = logRoomService.getLogCharacterCard(publicId, memberPublicId, userId);
+
+        return ResponseEntity.ok(
+                ApiResponse.success("로그 캐릭터 카드 조회 성공", response));
     }
 }

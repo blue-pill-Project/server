@@ -35,6 +35,7 @@ public enum ErrorCode {
     ALREADY_DELETED(HttpStatus.NOT_FOUND, "이미 탈퇴한 사용자입니다."),
     CHARACTER_CARD_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않거나 삭제된 캐릭터 카드입니다."),
     LOG_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 로그방입니다."),
+    LOG_ROOM_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 멤버입니다."),
 
     // 409 Conflict
     NICKNAME_DUPLICATION(HttpStatus.CONFLICT, "이미 사용중인 닉네임입니다."),

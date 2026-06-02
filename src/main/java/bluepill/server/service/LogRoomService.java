@@ -9,6 +9,7 @@ import bluepill.server.domain.LogRoomRelationship;
 import bluepill.server.domain.User;
 import bluepill.server.dto.logroom.DayLogEntry;
 import bluepill.server.dto.logroom.DayLogTimeSlot;
+import bluepill.server.dto.logroom.LogCharacterCardResponse;
 import bluepill.server.dto.logroom.LogRoomCreateRequest;
 import bluepill.server.dto.logroom.LogRoomCreateResponse;
 import bluepill.server.dto.logroom.LogRoomListItem;
@@ -191,5 +192,49 @@ public class LogRoomService {
         return grouped.entrySet().stream()
                 .map(e -> new DayLogTimeSlot(e.getKey(), e.getValue()))
                 .toList();
+    }
+
+    public LogCharacterCardResponse getLogCharacterCard(UUID roomPublicId, UUID memberPublicId, Long viewerId) {
+        // 방 조회
+        LogRoom room = logRoomRepository.findByPublicId(roomPublicId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.LOG_ROOM_NOT_FOUND));
+
+        // 멤버십 체크
+        boolean isMember = logRoomMemberRepository.existsByLogRoom_IdAndUser_UserId(room.getId(), viewerId);
+        if (!isMember) {
+            throw new BusinessException(ErrorCode.LOG_ROOM_FORBIDDEN);
+        }
+
+        // 멤버 조회 + 방 소속 + 캐릭터 멤버 여부 검증
+        LogRoomMember member = logRoomMemberRepository.findByPublicId(memberPublicId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.LOG_ROOM_MEMBER_NOT_FOUND));
+
+        if (!member.getLogRoom().getId().equals(room.getId()) || member.getSnapshot() == null) {
+            throw new BusinessException(ErrorCode.LOG_ROOM_MEMBER_NOT_FOUND);
+        }
+
+        CharacterSnapshot snapshot = member.getSnapshot();
+
+        // live 카드 조회 (삭제 카드 포함 — isDeleted 플래그 응답에 필요)
+        CharacterCard card = characterCardRepository.findById(snapshot.getCharacterId())
+                .orElseThrow();   // 데이터 불일치 시 500
+
+        boolean isLatest = snapshot.getVersion().equals(card.getVersion());
+        boolean isOwner = card.getCreator().getUserId().equals(viewerId);
+        boolean canUpdate = !card.getIsDeleted() && !isLatest && (isOwner || card.getIsPublic());
+
+        return new LogCharacterCardResponse(
+                member.getPublicId(),
+                card.getPublicId(),
+                snapshot.getName(),
+                snapshot.getDescription(),
+                snapshot.getImageUrl(),
+                card.getUseCnt(),
+                card.getIsDeleted(),
+                card.getIsPublic(),
+                isLatest,
+                isOwner,
+                canUpdate
+        );
     }
 }
