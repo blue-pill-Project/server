@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import java.time.LocalDate;
+
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -64,6 +66,17 @@ public class GlobalExceptionHandler {
         // 매핑된 게 없을 경우. 코드는 INVALID_PARAMETER, 메시지는 DTO의 에러 메시지를 사용
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.error(ErrorCode.INVALID_PARAMETER, fieldError.getDefaultMessage()));
+    }
+
+    // 쿼리/경로 파라미터 타입 변환 실패 처리 (LocalDate만 명시적 400, 그 외는 기존 500 폴백)
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    protected ResponseEntity<ApiResponse<Void>> handleTypeMismatch(MethodArgumentTypeMismatchException e) throws Exception {
+        if (e.getRequiredType() == LocalDate.class) {
+            log.warn("Invalid date format: param={}, value={}", e.getName(), e.getValue());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(ApiResponse.error(ErrorCode.INVALID_PARAMETER, "날짜 형식이 올바르지 않습니다. (yyyy-MM-dd)"));
+        }
+        throw e;
     }
 
     private ErrorCode mapToErrorCode(String field, String code) {
