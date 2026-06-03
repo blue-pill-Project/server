@@ -43,4 +43,8 @@ public class LogRoomMember extends BaseTimeEntity {
         this.user = user;
         this.snapshot = snapshot;
     }
+
+    public void updateSnapshot(CharacterSnapshot snapshot) {
+        this.snapshot = snapshot;
+    }
 }

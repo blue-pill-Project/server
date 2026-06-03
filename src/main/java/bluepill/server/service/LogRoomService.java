@@ -237,4 +237,63 @@ public class LogRoomService {
                 canUpdate
         );
     }
+
+    @Transactional
+    public void updateLogCharacterCard(UUID roomPublicId, UUID memberPublicId, Long viewerId) {
+        // 방 조회
+        LogRoom room = logRoomRepository.findByPublicId(roomPublicId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.LOG_ROOM_NOT_FOUND));
+
+        // 멤버십 체크
+        boolean isMember = logRoomMemberRepository.existsByLogRoom_IdAndUser_UserId(room.getId(), viewerId);
+        if (!isMember) {
+            throw new BusinessException(ErrorCode.LOG_ROOM_FORBIDDEN);
+        }
+
+        // 멤버 조회 + 방 소속 + 캐릭터 멤버 여부 검증
+        LogRoomMember member = logRoomMemberRepository.findByPublicId(memberPublicId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.LOG_ROOM_MEMBER_NOT_FOUND));
+
+        if (!member.getLogRoom().getId().equals(room.getId()) || member.getSnapshot() == null) {
+            throw new BusinessException(ErrorCode.LOG_ROOM_MEMBER_NOT_FOUND);
+        }
+
+        CharacterSnapshot currentSnapshot = member.getSnapshot();
+
+        // live 카드 조회 (삭제 카드 포함)
+        CharacterCard card = characterCardRepository.findById(currentSnapshot.getCharacterId())
+                .orElseThrow();   // 데이터 불일치 시 500
+
+        // 상태 검증: 삭제 → 이미 최신 → 권한
+        if (card.getIsDeleted()) {
+            throw new BusinessException(ErrorCode.CHARACTER_CARD_DELETED);
+        }
+        if (currentSnapshot.getVersion().equals(card.getVersion())) {
+            throw new BusinessException(ErrorCode.ALREADY_LATEST_VERSION);
+        }
+        boolean isOwner = card.getCreator().getUserId().equals(viewerId);
+        if (!card.getIsPublic() && !isOwner) {
+            throw new BusinessException(ErrorCode.LOG_CHARACTER_UPDATE_FORBIDDEN);
+        }
+
+        // 최신 버전 스냅샷 find-or-create
+        CharacterSnapshot latestSnapshot = characterSnapshotRepository
+                .findByCharacterIdAndVersion(card.getId(), card.getVersion())
+                .orElseGet(() -> characterSnapshotRepository.save(
+                        CharacterSnapshot.builder()
+                                .characterId(card.getId())
+                                .version(card.getVersion())
+                                .name(card.getName())
+                                .description(card.getDescription())
+                                .prompt(card.getPrompt())
+                                .imageUrl(card.getImageUrl())
+                                .exampleDialogues(card.getExampleDialogues().stream()
+                                        .map(ExampleDialogue::getContent)
+                                        .toList())
+                                .build()
+                ));
+
+        // 멤버의 스냅샷 핀 교체
+        member.updateSnapshot(latestSnapshot);
+    }
 }
