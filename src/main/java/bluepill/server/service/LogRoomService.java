@@ -346,4 +346,36 @@ public class LogRoomService {
 
         return LogPhotoUploadResponse.from(photo);
     }
+
+    @Transactional
+    public void deletePhoto(UUID roomPublicId, UUID photoPublicId, Long viewerId) {
+        // 방 조회
+        LogRoom room = logRoomRepository.findByPublicId(roomPublicId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.LOG_ROOM_NOT_FOUND));
+
+        // 멤버십 체크
+        boolean isMember = logRoomMemberRepository.existsByLogRoom_IdAndUser_UserId(room.getId(), viewerId);
+        if (!isMember) {
+            throw new BusinessException(ErrorCode.LOG_ROOM_FORBIDDEN);
+        }
+
+        // 사진 조회
+        LogPhoto photo = logPhotoRepository.findByPublicId(photoPublicId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.LOG_PHOTO_NOT_FOUND));
+
+        // 방 소속 검증 (다른 방 사진 ID로 시도하는 경우 차단)
+        if (!photo.getMember().getLogRoom().getId().equals(room.getId())) {
+            throw new BusinessException(ErrorCode.LOG_PHOTO_NOT_FOUND);
+        }
+
+        // 작성자 본인 검증 (캐릭터 사진이거나 다른 사용자 사진이면 403)
+        User author = photo.getMember().getUser();
+        if (author == null || !author.getUserId().equals(viewerId)) {
+            throw new BusinessException(ErrorCode.LOG_PHOTO_FORBIDDEN);
+        }
+
+        // DB 삭제
+        // TODO: S3 인프라 작업 시 S3 객체 삭제 추가 (트랜잭션 커밋 후)
+        logPhotoRepository.delete(photo);
+    }
 }

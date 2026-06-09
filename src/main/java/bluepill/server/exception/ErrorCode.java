@@ -31,6 +31,7 @@ public enum ErrorCode {
     LOG_ROOM_FORBIDDEN(HttpStatus.FORBIDDEN, "접근 권한이 없는 로그방입니다."),
     LOG_ROOM_PRIVATE(HttpStatus.FORBIDDEN, "비공개 로그방은 공유할 수 없습니다."),
     LOG_CHARACTER_UPDATE_FORBIDDEN(HttpStatus.FORBIDDEN, "비공개 캐릭터는 본인만 업데이트할 수 있습니다."),
+    LOG_PHOTO_FORBIDDEN(HttpStatus.FORBIDDEN, "본인이 올린 사진만 삭제할 수 있습니다."),
 
     // 404 Not Found
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 유저입니다."),
@@ -39,6 +40,7 @@ public enum ErrorCode {
     CHARACTER_CARD_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않거나 삭제된 캐릭터 카드입니다."),
     LOG_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 로그방입니다."),
     LOG_ROOM_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 멤버입니다."),
+    LOG_PHOTO_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 사진입니다."),
 
     // 409 Conflict
     NICKNAME_DUPLICATION(HttpStatus.CONFLICT, "이미 사용중인 닉네임입니다."),
