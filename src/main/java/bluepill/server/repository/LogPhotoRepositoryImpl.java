@@ -42,7 +42,7 @@ public class LogPhotoRepositoryImpl implements LogPhotoRepositoryCustom {
                 .leftJoin(m.snapshot, s)
                 .where(m.logRoom.id.eq(roomId)
                         .and(p.postDate.eq(date)))
-                .orderBy(p.timeSlot.asc(), p.createdAt.asc())
+                .orderBy(p.timeSlot.asc(), m.createdAt.asc())
                 .fetch();
     }
 }
