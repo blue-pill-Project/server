@@ -4,10 +4,15 @@ import bluepill.server.annotation.CurrentUserId;
 import bluepill.server.dto.common.ApiResponse;
 import bluepill.server.dto.logroom.DayLogTimeSlot;
 import bluepill.server.dto.logroom.LogCharacterCardResponse;
+import bluepill.server.dto.logroom.LogPhotoUploadRequest;
+import bluepill.server.dto.logroom.LogPhotoUploadResponse;
 import bluepill.server.dto.logroom.LogRoomCreateRequest;
 import bluepill.server.dto.logroom.LogRoomCreateResponse;
 import bluepill.server.dto.logroom.LogRoomListResponse;
+import bluepill.server.dto.post.PostShareRequest;
+import bluepill.server.dto.post.PostShareResponse;
 import bluepill.server.service.LogRoomService;
+import bluepill.server.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -18,6 +23,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -32,6 +38,7 @@ import java.util.UUID;
 public class LogRoomController {
 
     private final LogRoomService logRoomService;
+    private final PostService postService;
 
     @GetMapping
     public ResponseEntity<ApiResponse<LogRoomListResponse>> getMyLogRooms(
@@ -91,5 +98,32 @@ public class LogRoomController {
 
         return ResponseEntity.ok(
                 ApiResponse.success("최신 버전으로 업데이트되었습니다."));
+    }
+
+    @PostMapping("/{publicId}/posts")
+    public ResponseEntity<ApiResponse<PostShareResponse>> sharePost(
+            @CurrentUserId Long userId,
+            @PathVariable UUID publicId,
+            @RequestBody @Valid PostShareRequest request) {
+
+        PostShareResponse response = postService.sharePost(publicId, request, userId);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(ApiResponse.success("게시물이 공유되었습니다.", response));
+    }
+
+    @PostMapping("/{publicId}/photos")
+    public ResponseEntity<ApiResponse<LogPhotoUploadResponse>> uploadPhoto(
+            @CurrentUserId Long userId,
+            @PathVariable UUID publicId,
+            @RequestHeader(name = "X-Timezone", required = false) String timezone,
+            @RequestBody @Valid LogPhotoUploadRequest request) {
+
+        LogPhotoUploadResponse response = logRoomService.uploadPhoto(publicId, timezone, request, userId);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(ApiResponse.success("사진 업로드 성공", response));
     }
 }

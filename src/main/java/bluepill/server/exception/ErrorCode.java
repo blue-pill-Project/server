@@ -14,6 +14,7 @@ public enum ErrorCode {
     NICKNAME_MISSING(HttpStatus.BAD_REQUEST, "닉네임은 필수 입력 값입니다."),
     INVALID_IMAGE_KEY(HttpStatus.BAD_REQUEST, "유효하지 않은 이미지 키입니다. 이미지 생성을 먼저 진행해주세요."),
     INVALID_INPUT(HttpStatus.BAD_REQUEST, "isPublic 값은 필수이며 boolean 타입이어야 합니다."),
+    INVALID_TIMEZONE(HttpStatus.BAD_REQUEST, "유효하지 않은 timezone입니다."),
 
     // 401 Unauthorized
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다."),
@@ -28,6 +29,7 @@ public enum ErrorCode {
     CHARACTER_CARD_UPDATE_FORBIDDEN(HttpStatus.FORBIDDEN, "본인이 생성한 캐릭터 카드만 수정 가능합니다."),
     CHARACTER_CARD_VISIBILITY_FORBIDDEN(HttpStatus.FORBIDDEN, "본인이 생성한 캐릭터 카드만 설정 가능합니다."),
     LOG_ROOM_FORBIDDEN(HttpStatus.FORBIDDEN, "접근 권한이 없는 로그방입니다."),
+    LOG_ROOM_PRIVATE(HttpStatus.FORBIDDEN, "비공개 로그방은 공유할 수 없습니다."),
     LOG_CHARACTER_UPDATE_FORBIDDEN(HttpStatus.FORBIDDEN, "비공개 캐릭터는 본인만 업데이트할 수 있습니다."),
 
     // 404 Not Found
@@ -42,6 +44,8 @@ public enum ErrorCode {
     NICKNAME_DUPLICATION(HttpStatus.CONFLICT, "이미 사용중인 닉네임입니다."),
     ALREADY_LATEST_VERSION(HttpStatus.CONFLICT, "이미 최신 버전입니다."),
     CHARACTER_CARD_DELETED(HttpStatus.CONFLICT, "삭제된 캐릭터는 업데이트할 수 없습니다."),
+    PHOTO_ALREADY_UPLOADED(HttpStatus.CONFLICT, "이미 이 시간대에 업로드한 사진이 있습니다."),
+    POST_ALREADY_SHARED(HttpStatus.CONFLICT, "이미 공유된 시간대입니다."),
 
     // 429 Too Many Requests
     CHARACTER_CREATE_LIMIT_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "일일 캐릭터 생성 횟수를 초과했습니다. 내일 다시 시도해주세요. (하루 30회 제한)"),
