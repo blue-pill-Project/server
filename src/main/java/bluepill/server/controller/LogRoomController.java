@@ -9,6 +9,7 @@ import bluepill.server.dto.logroom.LogPhotoUploadResponse;
 import bluepill.server.dto.logroom.LogRoomCreateRequest;
 import bluepill.server.dto.logroom.LogRoomCreateResponse;
 import bluepill.server.dto.logroom.LogRoomListResponse;
+import bluepill.server.dto.post.PostListResponse;
 import bluepill.server.dto.post.PostShareRequest;
 import bluepill.server.dto.post.PostShareResponse;
 import bluepill.server.service.LogRoomService;
@@ -112,6 +113,19 @@ public class LogRoomController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(ApiResponse.success("게시물이 공유되었습니다.", response));
+    }
+
+    @GetMapping("/{publicId}/posts")
+    public ResponseEntity<ApiResponse<PostListResponse>> getPostsInRoom(
+            @CurrentUserId Long userId,
+            @PathVariable UUID publicId,
+            @RequestParam(required = false) UUID cursor,
+            @RequestParam(defaultValue = "10") int size) {
+
+        PostListResponse response = postService.getPostsInRoom(publicId, cursor, size, userId);
+
+        return ResponseEntity.ok(
+                ApiResponse.success("게시물 목록 조회 성공", response));
     }
 
     @PostMapping("/{publicId}/photos")
