@@ -3,6 +3,7 @@ package bluepill.server.service;
 import bluepill.server.domain.CharacterCard;
 import bluepill.server.domain.CharacterSnapshot;
 import bluepill.server.domain.ExampleDialogue;
+import bluepill.server.domain.LogPhoto;
 import bluepill.server.domain.LogRoom;
 import bluepill.server.domain.LogRoomMember;
 import bluepill.server.domain.LogRoomRelationship;
@@ -10,6 +11,8 @@ import bluepill.server.domain.User;
 import bluepill.server.dto.logroom.DayLogEntry;
 import bluepill.server.dto.logroom.DayLogTimeSlot;
 import bluepill.server.dto.logroom.LogCharacterCardResponse;
+import bluepill.server.dto.logroom.LogPhotoUploadRequest;
+import bluepill.server.dto.logroom.LogPhotoUploadResponse;
 import bluepill.server.dto.logroom.LogRoomCreateRequest;
 import bluepill.server.dto.logroom.LogRoomCreateResponse;
 import bluepill.server.dto.logroom.LogRoomListItem;
@@ -26,10 +29,14 @@ import bluepill.server.repository.LogRoomRelationshipRepository;
 import bluepill.server.repository.LogRoomRepository;
 import bluepill.server.repository.MemberImageRow;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DateTimeException;
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -295,5 +302,80 @@ public class LogRoomService {
 
         // 멤버의 스냅샷 핀 교체
         member.updateSnapshot(latestSnapshot);
+    }
+
+    @Transactional
+    public LogPhotoUploadResponse uploadPhoto(UUID roomPublicId, String timezoneHeader,
+                                              LogPhotoUploadRequest request, Long viewerId) {
+        // timezone 파싱
+        ZoneId zoneId;
+        try {
+            zoneId = ZoneId.of(timezoneHeader);
+        } catch (DateTimeException | NullPointerException e) {
+            throw new BusinessException(ErrorCode.INVALID_TIMEZONE);
+        }
+
+        // 방 조회
+        LogRoom room = logRoomRepository.findByPublicId(roomPublicId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.LOG_ROOM_NOT_FOUND));
+
+        // 사용자 멤버 조회 (멤버십 검증 겸용)
+        LogRoomMember member = logRoomMemberRepository
+                .findByLogRoom_IdAndUser_UserId(room.getId(), viewerId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.LOG_ROOM_FORBIDDEN));
+
+        // 현재 시각 기준 postDate, timeSlot 계산 (3시간 단위)
+        ZonedDateTime now = ZonedDateTime.now(zoneId);
+        LocalDate postDate = now.toLocalDate();
+        Integer timeSlot = (now.getHour() / 3) * 3;
+
+        // LogPhoto INSERT (unique 위반 시 409)
+        LogPhoto photo;
+        try {
+            photo = logPhotoRepository.save(LogPhoto.builder()
+                    .publicId(UUID.randomUUID())
+                    .member(member)
+                    .postDate(postDate)
+                    .timeSlot(timeSlot)
+                    .imageUrl(request.getImageUrl())
+                    .caption(request.getCaption())
+                    .build());
+        } catch (DataIntegrityViolationException e) {
+            throw new BusinessException(ErrorCode.PHOTO_ALREADY_UPLOADED);
+        }
+
+        return LogPhotoUploadResponse.from(photo);
+    }
+
+    @Transactional
+    public void deletePhoto(UUID roomPublicId, UUID photoPublicId, Long viewerId) {
+        // 방 조회
+        LogRoom room = logRoomRepository.findByPublicId(roomPublicId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.LOG_ROOM_NOT_FOUND));
+
+        // 멤버십 체크
+        boolean isMember = logRoomMemberRepository.existsByLogRoom_IdAndUser_UserId(room.getId(), viewerId);
+        if (!isMember) {
+            throw new BusinessException(ErrorCode.LOG_ROOM_FORBIDDEN);
+        }
+
+        // 사진 조회
+        LogPhoto photo = logPhotoRepository.findByPublicId(photoPublicId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.LOG_PHOTO_NOT_FOUND));
+
+        // 방 소속 검증 (다른 방 사진 ID로 시도하는 경우 차단)
+        if (!photo.getMember().getLogRoom().getId().equals(room.getId())) {
+            throw new BusinessException(ErrorCode.LOG_PHOTO_NOT_FOUND);
+        }
+
+        // 작성자 본인 검증 (캐릭터 사진이거나 다른 사용자 사진이면 403)
+        User author = photo.getMember().getUser();
+        if (author == null || !author.getUserId().equals(viewerId)) {
+            throw new BusinessException(ErrorCode.LOG_PHOTO_FORBIDDEN);
+        }
+
+        // DB 삭제
+        // TODO: S3 인프라 작업 시 S3 객체 삭제 추가 (트랜잭션 커밋 후)
+        logPhotoRepository.delete(photo);
     }
 }
