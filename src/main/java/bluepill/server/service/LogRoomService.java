@@ -17,6 +17,7 @@ import bluepill.server.dto.logroom.LogRoomCreateRequest;
 import bluepill.server.dto.logroom.LogRoomCreateResponse;
 import bluepill.server.dto.logroom.LogRoomListItem;
 import bluepill.server.dto.logroom.LogRoomListResponse;
+import bluepill.server.dto.logroom.LogRoomParticipant;
 import bluepill.server.exception.BusinessException;
 import bluepill.server.exception.ErrorCode;
 import bluepill.server.repository.CharacterCardRepository;
@@ -71,13 +72,12 @@ public class LogRoomService {
         List<MemberImageRow> memberImages = logRoomRepository.findMemberImagesByRoomIds(roomIds);
 
         // 방별 그룹화: 멤버 수 + 이미지 배열 (이미지 null은 배열에서 제외, 카운트는 전체 멤버)
-        Map<Long, List<String>> imagesByRoom = new LinkedHashMap<>();
+        Map<Long, List<LogRoomParticipant>> participantsByRoom = new LinkedHashMap<>();
         Map<Long, Long> countByRoom = new HashMap<>();
         for (MemberImageRow row : memberImages) {
             countByRoom.merge(row.roomId(), 1L, Long::sum);
-            if (row.imageUrl() != null) {
-                imagesByRoom.computeIfAbsent(row.roomId(), k -> new ArrayList<>()).add(row.imageUrl());
-            }
+            participantsByRoom.computeIfAbsent(row.roomId(), k -> new ArrayList<>())
+                    .add(new LogRoomParticipant(row.memberPublicId(), row.imageUrl()));
         }
 
         // LogRoomListItem 조립
@@ -90,7 +90,7 @@ public class LogRoomService {
                         r.creatorUserId().equals(viewerId),
                         r.creatorPublicId(),
                         r.creatorNickname(),
-                        imagesByRoom.getOrDefault(r.roomId(), List.of())))
+                        participantsByRoom.getOrDefault(r.roomId(), List.of())))
                 .toList();
 
         UUID nextCursor = hasNext && !content.isEmpty()

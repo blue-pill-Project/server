@@ -17,5 +17,5 @@ public class LogRoomListItem {
     private Boolean isOwner;
     private UUID ownerPublicId;
     private String ownerNickname;
-    private List<String> participantImages;
+    private List<LogRoomParticipant> participants;
 }

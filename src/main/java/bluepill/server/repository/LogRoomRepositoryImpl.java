@@ -55,6 +55,7 @@ public class LogRoomRepositoryImpl implements LogRoomRepositoryCustom {
         return queryFactory
                 .select(Projections.constructor(MemberImageRow.class,
                         m.logRoom.id,
+                        m.publicId,
                         s.imageUrl.coalesce(u.imageUrl)))   // 캐릭터면 스냅샷, 사람이면 유저 프로필
                 .from(m)
                 .leftJoin(m.user, u)
