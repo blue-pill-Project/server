@@ -130,4 +130,62 @@ public class PostService {
 
         return new PostListResponse(content, nextCursor, hasNext);
     }
+
+    public PostListResponse getPosts(UUID cursor, int size, Long viewerId) {
+        List<PostPageRow> page = postRepository.findAllPostsPage(cursor, size);
+
+        boolean hasNext = page.size() > size;
+        if (hasNext) {
+            page = page.subList(0, size);
+        }
+
+        List<Long> postIds = page.stream().map(PostPageRow::postId).toList();
+        List<PostPhotoRow> photoRows = postIds.isEmpty()
+                ? List.of()
+                : postRepository.findPhotosByPostIds(postIds);
+
+        // 게시물별 사진 그룹화
+        Map<Long, List<DayLogEntry>> photosByPost = new LinkedHashMap<>();
+        for (PostPhotoRow row : photoRows) {
+            photosByPost.computeIfAbsent(row.postId(), k -> new ArrayList<>())
+                    .add(new DayLogEntry(
+                            row.memberPublicId(),
+                            row.photoPublicId(),
+                            row.caption(),
+                            row.imageUrl(),
+                            row.authorType(),
+                            row.authorName(),
+                            row.authorImageUrl()
+                    ));
+        }
+
+        List<PostListItem> content = page.stream()
+                .map(row -> new PostListItem(
+                        row.publicId(),
+                        row.postDate(),
+                        row.timeSlot(),
+                        new PostSharer(row.sharerPublicId(), row.sharerNickname(), row.sharerProfileImageUrl()),
+                        viewerId != null && row.sharerUserId().equals(viewerId),
+                        row.createdAt(),
+                        photosByPost.getOrDefault(row.postId(), List.of())))
+                .toList();
+
+        UUID nextCursor = hasNext && !content.isEmpty()
+                ? content.get(content.size() - 1).getPublicId()
+                : null;
+
+        return new PostListResponse(content, nextCursor, hasNext);
+
+    }
+
+    public void deletePost(UUID publicId, Long viewerId) {
+        Post post = postRepository.findByPublicId(publicId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.POST_NOT_FOUND));
+
+        if(!post.getCreatedBy().getUserId().equals(viewerId)){
+            throw new BusinessException(ErrorCode.POST_FORBIDDEN);
+        }
+
+        postRepository.delete(post);
+    }
 }
