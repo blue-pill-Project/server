@@ -1,10 +1,6 @@
 package bluepill.server.repository;
 
-import bluepill.server.domain.QCharacterSnapshot;
-import bluepill.server.domain.QLogPhoto;
-import bluepill.server.domain.QLogRoomMember;
-import bluepill.server.domain.QPost;
-import bluepill.server.domain.QUser;
+import bluepill.server.domain.*;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
@@ -85,5 +81,27 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         Instant cursorCreatedAt = queryFactory.select(p.createdAt).from(p).where(p.id.eq(cursorId)).fetchOne();
         return p.createdAt.lt(cursorCreatedAt)
                 .or(p.createdAt.eq(cursorCreatedAt).and(p.id.lt(cursorId)));
+    }
+
+    @Override
+    public List<PostPageRow> findAllPostsPage(UUID cursorPublicId, int size) {
+        QPost p = QPost.post;
+        QUser u = QUser.user;
+        QLogRoom lr = QLogRoom.logRoom;
+
+        return queryFactory
+                .select(Projections.constructor(PostPageRow.class,
+                        p.id, p.publicId, p.postDate, p.timeSlot, p.createdAt,
+                        u.userId, u.publicId, u.nickname, u.imageUrl))
+                .from(p)
+                .join(p.createdBy, u)
+                .join(p.logRoom, lr)
+                .where(
+                        lr.isPublic.isTrue(),
+                        cursorCondition(p, cursorPublicId)
+                )
+                .orderBy(p.createdAt.desc(), p.id.desc())
+                .limit(size + 1L)
+                .fetch();
     }
 }
