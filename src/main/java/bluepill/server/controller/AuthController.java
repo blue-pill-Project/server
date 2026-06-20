@@ -4,6 +4,7 @@ package bluepill.server.controller;
 import bluepill.server.dto.common.ApiResponse;
 import bluepill.server.dto.user.TokenResponse;
 import bluepill.server.service.AuthService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -41,6 +42,7 @@ public class AuthController {
         return ApiResponse.success("토큰이 재발급 되었습니다", response);
     }
 
+    @Operation(summary = "로그아웃")
     @PostMapping("/logout")
     public ApiResponse<Void> logout(@CookieValue(value = "refreshToken") String refreshToken, HttpServletResponse response) {
         authService.logout(refreshToken);
