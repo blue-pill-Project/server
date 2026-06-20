@@ -6,6 +6,7 @@ import bluepill.server.dto.user.UserProfileUpdateRequest;
 import bluepill.server.exception.BusinessException;
 import bluepill.server.exception.ErrorCode;
 import bluepill.server.repository.CharacterCardRepository;
+import bluepill.server.repository.PostRepository;
 import bluepill.server.repository.UserRepository;
 import bluepill.server.util.NicknameGenerator;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final CharacterCardRepository characterCardRepository;
+    private final PostRepository postRepository;
     private final NicknameGenerator nicknameGenerator;
 
     public User findById(Long id) {
@@ -39,19 +41,12 @@ public class UserService {
 
         boolean isOwner = userId != null && userId.equals(user.getUserId());
 
-        long characterCnt = characterCardRepository.countByCreatorAndIsDeletedFalse(user);
+        Long characterCount = characterCardRepository.countByCreatorAndIsDeletedFalse(user);
+        Long postCount = postRepository.countByCreatedBy(user);
 
-        return new UserProfileResponse(
-                user.getPublicId(),
-                user.getNickname(),
-                user.getImageUrl(),
-                user.getEmail(),
-                user.getPlan() != null ? user.getPlan().getId() : null,
-                user.getIsPublic(),
-                characterCnt,
-                isOwner
-        );
+        return  UserProfileResponse.from(user, isOwner, characterCount, postCount);
     };
+
 
     @Transactional
     public UserProfileResponse updateProfile(Long userId, UserProfileUpdateRequest request) {

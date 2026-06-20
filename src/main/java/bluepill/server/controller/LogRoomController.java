@@ -14,6 +14,7 @@ import bluepill.server.dto.post.PostShareRequest;
 import bluepill.server.dto.post.PostShareResponse;
 import bluepill.server.service.LogRoomService;
 import bluepill.server.service.PostService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -42,6 +43,7 @@ public class LogRoomController {
     private final LogRoomService logRoomService;
     private final PostService postService;
 
+    @Operation(summary = "로그방 목록 조회")
     @GetMapping
     public ResponseEntity<ApiResponse<LogRoomListResponse>> getMyLogRooms(
             @CurrentUserId Long userId,
@@ -54,6 +56,7 @@ public class LogRoomController {
                 ApiResponse.success("로그방 목록 조회 성공", response));
     }
 
+    @Operation(summary = "로그방 생성")
     @PostMapping
     public ResponseEntity<ApiResponse<LogRoomCreateResponse>> createLogRoom(
             @CurrentUserId Long userId,
@@ -66,6 +69,7 @@ public class LogRoomController {
                 .body(ApiResponse.success("로그방 생성 성공", response));
     }
 
+    @Operation(summary = "하루 로그 조회")
     @GetMapping("/{publicId}/logs")
     public ResponseEntity<ApiResponse<List<DayLogTimeSlot>>> getDayLog(
             @CurrentUserId Long userId,
@@ -78,6 +82,7 @@ public class LogRoomController {
                 ApiResponse.success("하루 로그 조회 성공", response));
     }
 
+    @Operation(summary = "로그방 참여중인 캐릭터 카드 조회")
     @GetMapping("/{publicId}/members/{memberPublicId}")
     public ResponseEntity<ApiResponse<LogCharacterCardResponse>> getLogCharacterCard(
             @CurrentUserId Long userId,
@@ -90,6 +95,7 @@ public class LogRoomController {
                 ApiResponse.success("로그 캐릭터 카드 조회 성공", response));
     }
 
+    @Operation(summary = "로그방 참여중인 캐릭터 카드 최신 버전 업데이트")
     @PatchMapping("/{publicId}/members/{memberPublicId}")
     public ResponseEntity<ApiResponse<Void>> updateLogCharacterCard(
             @CurrentUserId Long userId,
@@ -102,6 +108,7 @@ public class LogRoomController {
                 ApiResponse.success("최신 버전으로 업데이트되었습니다."));
     }
 
+    @Operation(summary = "로그 게시물 공유")
     @PostMapping("/{publicId}/posts")
     public ResponseEntity<ApiResponse<PostShareResponse>> sharePost(
             @CurrentUserId Long userId,
@@ -115,6 +122,7 @@ public class LogRoomController {
                 .body(ApiResponse.success("게시물이 공유되었습니다.", response));
     }
 
+    @Operation(summary = "게시물 목록 조회")
     @GetMapping("/{publicId}/posts")
     public ResponseEntity<ApiResponse<PostListResponse>> getPostsInRoom(
             @CurrentUserId Long userId,
@@ -128,6 +136,7 @@ public class LogRoomController {
                 ApiResponse.success("게시물 목록 조회 성공", response));
     }
 
+    @Operation(summary = "로그 사진 업로드")
     @PostMapping("/{publicId}/photos")
     public ResponseEntity<ApiResponse<LogPhotoUploadResponse>> uploadPhoto(
             @CurrentUserId Long userId,
@@ -142,6 +151,7 @@ public class LogRoomController {
                 .body(ApiResponse.success("사진 업로드 성공", response));
     }
 
+    @Operation(summary = "로그 사진 삭제")
     @DeleteMapping("/{publicId}/photos/{photoPublicId}")
     public ResponseEntity<ApiResponse<Void>> deletePhoto(
             @CurrentUserId Long userId,

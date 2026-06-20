@@ -4,6 +4,7 @@ import bluepill.server.annotation.CurrentUserId;
 import bluepill.server.dto.character.UserCharacterCardListResponse;
 import bluepill.server.dto.common.ApiResponse;
 import bluepill.server.service.CharacterCardService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +22,7 @@ public class UserCharacterCardController {
 
     private final CharacterCardService characterCardService;
 
+    @Operation(summary = "사용자가 생성한 캐릭터 카드 목록 조회")
     @GetMapping
     public ResponseEntity<ApiResponse<UserCharacterCardListResponse>> getUserCharacterCards(
             @CurrentUserId Long viewerId,

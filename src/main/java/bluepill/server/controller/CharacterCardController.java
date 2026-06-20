@@ -13,6 +13,7 @@ import bluepill.server.dto.character.CharacterSortType;
 import bluepill.server.dto.common.ApiResponse;
 import bluepill.server.service.CharacterCardService;
 import bluepill.server.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -37,6 +38,7 @@ public class CharacterCardController {
     private final CharacterCardService characterCardService;
     private final UserService userService;
 
+    @Operation(summary = "캐릭터 카드 생성")
     @PostMapping
     public ResponseEntity<ApiResponse<CharacterCardCreateResponse>> createCharacterCard(
             @CurrentUserId Long userId,
@@ -52,6 +54,7 @@ public class CharacterCardController {
                 .body(ApiResponse.success("캐릭터 카드 생성 성공", response));
     }
 
+    @Operation(summary = "라이브러리 캐릭터 목록 조회")
     @GetMapping
     public ResponseEntity<ApiResponse<CharacterCardListResponse>> getLibrary(
             @CurrentUserId Long userId,
@@ -68,6 +71,7 @@ public class CharacterCardController {
                 .ok(ApiResponse.success("라이브러리 캐릭터 목록 조회 성공", response));
     }
 
+    @Operation(summary = "캐릭터 카드 상세 조회")
     @GetMapping("/{publicId}")
     public ResponseEntity<ApiResponse<CharacterCardDetailResponse>> getCharacterCardDetail(
             @CurrentUserId Long viewerId,
@@ -79,6 +83,7 @@ public class CharacterCardController {
                 ApiResponse.success("캐릭터 카드 상세 조회 성공", response));
     }
 
+    @Operation(summary = "캐릭터 카드 삭제")
     @DeleteMapping("/{publicId}")
     public ResponseEntity<ApiResponse<Void>> deleteCharacterCard(
             @CurrentUserId Long userId,
@@ -90,6 +95,7 @@ public class CharacterCardController {
                 ApiResponse.success("캐릭터 카드가 성공적으로 삭제되었습니다."));
     }
 
+    @Operation(summary = "캐릭터 카드 수정")
     @PatchMapping("/{publicId}")
     public ResponseEntity<ApiResponse<Void>> updateCharacterCard(
             @CurrentUserId Long userId,
@@ -102,6 +108,7 @@ public class CharacterCardController {
                 ApiResponse.success("캐릭터 카드가 성공적으로 수정되었습니다."));
     }
 
+    @Operation(summary = "캐릭터 카드 공개 여부 변경")
     @PatchMapping("/{publicId}/visibility")
     public ResponseEntity<ApiResponse<Void>> updateVisibility(
             @CurrentUserId Long userId,

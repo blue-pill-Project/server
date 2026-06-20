@@ -19,7 +19,7 @@ public class ChatMessageController {
     private final ChatMessageService chatMessageService;
 
     @Operation(summary = "채팅 전송")
-    @PostMapping("/{publicId}/chat")
+    @PostMapping("/{publicId}/chats")
     public ApiResponse<ChatMessageResponse> send(
             @PathVariable UUID publicId,
             @RequestBody ChatMessageRequest request,

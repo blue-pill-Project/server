@@ -11,11 +11,12 @@ public record UserProfileResponse(
         String email,
         Long planId,
         Boolean isPublic,
-        Long characterCnt,
+        Long characterCount,
+        Long postCount,
         boolean isOwner
 
 ) {
-    public static UserProfileResponse from(User user, boolean isOwner) {
+    public static UserProfileResponse from(User user, boolean isOwner, Long characterCount, Long postCount) {
         return new UserProfileResponse(
                 user.getPublicId(),
                 user.getNickname(),
@@ -23,6 +24,21 @@ public record UserProfileResponse(
                 user.getEmail(),
                 user.getPlan() != null? user.getPlan().getId(): null,
                 user.getIsPublic(),
+                characterCount,
+                postCount,
+                isOwner
+        );
+    }
+
+    public static UserProfileResponse from(User user, boolean isOwner) {
+        return new UserProfileResponse(
+                user.getPublicId(),
+                user.getNickname(),
+                user.getImageUrl(),
+                user.getEmail(),
+                user.getPlan() != null ? user.getPlan().getId() : null,
+                user.getIsPublic(),
+                0L,
                 0L,
                 isOwner
         );
