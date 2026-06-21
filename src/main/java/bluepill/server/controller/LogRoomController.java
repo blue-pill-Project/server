@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/log-rooms")
+@RequestMapping("/api/log-rooms")
 @RequiredArgsConstructor
 public class LogRoomController {
 
