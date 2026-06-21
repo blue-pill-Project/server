@@ -27,4 +27,7 @@ springdoc:
     tags-sorter: alpha
     operations-sorter: alpha
     display-request-duration: true
+  server:
+    - url: http://localhost:8080/api
+      description: 로컬 서버
 

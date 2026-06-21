@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name="DevAuth")
 @Profile({"local"})
 @RestController
-@RequestMapping("/dev/token")
+@RequestMapping("/api/dev/token")
 @RequiredArgsConstructor
 public class DevAuthController {
 
