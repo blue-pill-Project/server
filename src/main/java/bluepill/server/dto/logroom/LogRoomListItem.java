@@ -12,6 +12,8 @@ import java.util.UUID;
 public class LogRoomListItem {
     private UUID publicId;
     private String name;
+    private Boolean isPublic;
+    private String backgroundImageUrl;
     private Long participantCount;
     private Instant createdAt;
     private Boolean isOwner;

@@ -21,6 +21,7 @@ import bluepill.server.dto.logroom.LogRoomParticipant;
 import bluepill.server.exception.BusinessException;
 import bluepill.server.exception.ErrorCode;
 import bluepill.server.repository.CharacterCardRepository;
+import bluepill.server.repository.CharacterPhotoRow;
 import bluepill.server.repository.CharacterSnapshotRepository;
 import bluepill.server.repository.DayLogRow;
 import bluepill.server.repository.LogPhotoRepository;
@@ -43,6 +44,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.UUID;
 
 @Service
@@ -80,11 +82,44 @@ public class LogRoomService {
                     .add(new LogRoomParticipant(row.memberPublicId(), row.imageUrl()));
         }
 
+        // 쿼리3: 각 방의 캐릭터 사진 (postDate DESC, timeSlot DESC 정렬됨)
+        List<CharacterPhotoRow> characterPhotos = logRoomRepository.findCharacterPhotosByRoomIds(roomIds);
+
+        // 방별로 가장 최근 슬롯의 캐릭터 사진 후보 모으기
+        Map<Long, List<String>> bgCandidatesByRoom = new LinkedHashMap<>();
+        Map<Long, LocalDate> latestDateByRoom = new HashMap<>();
+        Map<Long, Integer> latestSlotByRoom = new HashMap<>();
+        for (CharacterPhotoRow row : characterPhotos) {
+            Long roomId = row.roomId();
+            LocalDate latestDate = latestDateByRoom.get(roomId);
+            if (latestDate == null) {
+                // 그 방의 첫 row = 가장 최근 슬롯
+                latestDateByRoom.put(roomId, row.postDate());
+                latestSlotByRoom.put(roomId, row.timeSlot());
+                bgCandidatesByRoom.put(roomId, new ArrayList<>(List.of(row.imageUrl())));
+            } else if (row.postDate().equals(latestDate)
+                    && row.timeSlot().equals(latestSlotByRoom.get(roomId))) {
+                // 같은 최근 슬롯
+                bgCandidatesByRoom.get(roomId).add(row.imageUrl());
+            }
+            // 그 외(더 오래된 슬롯) : 스킵
+        }
+
+        // 후보 중 랜덤 1장 선택 : backgroundImageUrl
+        Random random = new Random();
+        Map<Long, String> bgByRoom = new HashMap<>();
+        for (var entry : bgCandidatesByRoom.entrySet()) {
+            List<String> candidates = entry.getValue();
+            bgByRoom.put(entry.getKey(), candidates.get(random.nextInt(candidates.size())));
+        }
+
         // LogRoomListItem 조립
         List<LogRoomListItem> content = page.stream()
                 .map(r -> new LogRoomListItem(
                         r.publicId(),
                         r.name(),
+                        r.isPublic(),
+                        bgByRoom.get(r.roomId()),
                         countByRoom.getOrDefault(r.roomId(), 0L),
                         r.createdAt(),
                         r.creatorUserId().equals(viewerId),
