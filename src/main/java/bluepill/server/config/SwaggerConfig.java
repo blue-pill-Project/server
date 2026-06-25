@@ -19,16 +19,11 @@ public class SwaggerConfig {
     @Bean
     public OpenAPI openAPI(){
 
-        Server localServer = new Server()
-                .url("http://localhost:8080/api")
-                .description("Local server");
-
         return new OpenAPI()
                 .info(new Info()
                         .title("Bluepill API")
                         .description("Bluepill API 테스트 문서")
                         .version("v1.0.0"))
-                .servers(List.of(localServer))
                 .addSecurityItem(new SecurityRequirement().addList(SECURITY_SCHEME_NAME))
                 .components(new Components()
                         .addSecuritySchemes(SECURITY_SCHEME_NAME,
