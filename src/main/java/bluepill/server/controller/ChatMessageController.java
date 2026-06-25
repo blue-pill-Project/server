@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/log-rooms")
+@RequestMapping("/api/log-rooms")
 @RequiredArgsConstructor
 public class ChatMessageController {
     private final ChatMessageService chatMessageService;

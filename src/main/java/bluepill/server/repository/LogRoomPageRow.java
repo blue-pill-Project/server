@@ -7,6 +7,7 @@ public record LogRoomPageRow(
         Long roomId,
         UUID publicId,
         String name,
+        Boolean isPublic,
         Instant createdAt,
         Long creatorUserId,
         UUID creatorPublicId,

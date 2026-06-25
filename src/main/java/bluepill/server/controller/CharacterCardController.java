@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/character-cards")
+@RequestMapping("/api/character-cards")
 @RequiredArgsConstructor
 public class CharacterCardController {
 

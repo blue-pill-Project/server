@@ -1,6 +1,7 @@
 package bluepill.server.repository;
 
 import bluepill.server.domain.QCharacterSnapshot;
+import bluepill.server.domain.QLogPhoto;
 import bluepill.server.domain.QLogRoom;
 import bluepill.server.domain.QLogRoomMember;
 import bluepill.server.domain.QUser;
@@ -27,7 +28,7 @@ public class LogRoomRepositoryImpl implements LogRoomRepositoryCustom {
 
         return queryFactory
                 .select(Projections.constructor(LogRoomPageRow.class,
-                        r.id, r.publicId, r.name, r.createdAt,
+                        r.id, r.publicId, r.name, r.isPublic, r.createdAt,
                         u.userId, u.publicId, u.nickname))
                 .from(r)
                 .join(r.createdBy, u)
@@ -62,6 +63,29 @@ public class LogRoomRepositoryImpl implements LogRoomRepositoryCustom {
                 .leftJoin(m.snapshot, s)
                 .where(m.logRoom.id.in(roomIds))
                 .orderBy(m.logRoom.id.asc(), m.createdAt.asc())
+                .fetch();
+    }
+
+    @Override
+    public List<CharacterPhotoRow> findCharacterPhotosByRoomIds(List<Long> roomIds) {
+        if (roomIds.isEmpty()) return List.of();
+
+        QLogPhoto photo = QLogPhoto.logPhoto;
+        QLogRoomMember m = QLogRoomMember.logRoomMember;
+
+        return queryFactory
+                .select(Projections.constructor(CharacterPhotoRow.class,
+                        m.logRoom.id,
+                        photo.postDate,
+                        photo.timeSlot,
+                        photo.imageUrl))
+                .from(photo)
+                .join(photo.member, m)
+                .where(
+                        m.logRoom.id.in(roomIds),
+                        m.snapshot.isNotNull()       // 캐릭터 멤버만
+                )
+                .orderBy(m.logRoom.id.asc(), photo.postDate.desc(), photo.timeSlot.desc())
                 .fetch();
     }
 
