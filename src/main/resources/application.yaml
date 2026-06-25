@@ -23,8 +23,11 @@ app:
 
 springdoc:
   swagger-ui:
-    path: /swagger-ui.html
+    path: /docs
     tags-sorter: alpha
     operations-sorter: alpha
     display-request-duration: true
 
+cloudflare:
+  r2:
+    bucket-name: bluepill-images

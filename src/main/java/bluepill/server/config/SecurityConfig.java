@@ -39,11 +39,13 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth->auth
                         //swagger 허용
                         .requestMatchers(
+                                "/docs",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/auth/reissue",
                                 "/auth/logout",
                                 "/dev/token/**"
+
                                 ).permitAll()
 
                         //캐릭터 카드 조회
