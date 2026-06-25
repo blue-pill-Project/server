@@ -39,11 +39,12 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth->auth
                         //swagger 허용
                         .requestMatchers(
+                                "/docs",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/api/auth/reissue",
                                 "/api/auth/logout",
-                                "/api/dev/token/**"
+                                "/dev/token/**"
                                 ).permitAll()
 
                         //OAuth2 경로 허용

@@ -23,7 +23,7 @@ app:
 
 springdoc:
   swagger-ui:
-    path: /swagger-ui.html
+    path: /docs
     tags-sorter: alpha
     operations-sorter: alpha
     display-request-duration: true
@@ -31,3 +31,6 @@ springdoc:
     - url: http://localhost:8080/api
       description: 로컬 서버
 
+cloudflare:
+  r2:
+    bucket-name: bluepill-images
