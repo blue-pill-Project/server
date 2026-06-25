@@ -34,3 +34,4 @@ springdoc:
 cloudflare:
   r2:
     bucket-name: bluepill-images
+    public-domain: https://pub-6197228c2b2a487daea08784bd1677d4.r2.dev
