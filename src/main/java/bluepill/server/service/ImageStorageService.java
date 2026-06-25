@@ -1,6 +1,7 @@
 package bluepill.server.service;
 
 import bluepill.server.dto.image.ImagePresignedResponse;
+import bluepill.server.dto.image.ImageType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -21,10 +22,10 @@ public class ImageStorageService {
     @Value("${cloudflare.r2.bucket-name}")
     private String bucketName;
 
-    public ImagePresignedResponse createPresignedUrl(String originalFilename, String contentType){
+    public ImagePresignedResponse createPresignedUrl(Long userId, String originalFilename, String contentType, ImageType imageType){
 
         //파일명 생성
-        String key = UUID.randomUUID() + "_" + originalFilename;
+        String key = imageType.getPrefix()+ "/" + userId + "/" + UUID.randomUUID() + "_" + originalFilename;
 
         //요청 객체
         PutObjectRequest objectRequest = PutObjectRequest.builder()
