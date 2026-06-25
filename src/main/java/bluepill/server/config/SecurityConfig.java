@@ -41,10 +41,13 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
-                                "/auth/reissue",
-                                "/auth/logout",
-                                "/dev/token/**"
+                                "/api/auth/reissue",
+                                "/api/auth/logout",
+                                "/api/dev/token/**"
                                 ).permitAll()
+
+                        //OAuth2 경로 허용
+                        .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
 
                         //캐릭터 카드 조회
                         .requestMatchers(HttpMethod.GET, "/character-cards", "/character-cards/*").permitAll()

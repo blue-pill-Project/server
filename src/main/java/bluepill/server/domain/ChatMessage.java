@@ -42,6 +42,9 @@ public class ChatMessage {
     @PrePersist //DB에 저장되기 직전에 자동 실행
     void prePersist() {
         this.createdAt = Instant.now();
+        if (this.publicId == null) {
+            this.publicId = UUID.randomUUID();
+        }
     }
 
     @Builder
