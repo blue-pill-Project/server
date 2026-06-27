@@ -8,6 +8,7 @@ import bluepill.server.exception.ErrorCode;
 import bluepill.server.repository.CharacterCardRepository;
 import bluepill.server.repository.PostRepository;
 import bluepill.server.repository.UserRepository;
+import bluepill.server.util.ImageUrlBuilder;
 import bluepill.server.util.NicknameGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ public class UserService {
     private final CharacterCardRepository characterCardRepository;
     private final PostRepository postRepository;
     private final NicknameGenerator nicknameGenerator;
+    private final ImageUrlBuilder imageUrlBuilder;
 
     public User findById(Long id) {
         return userRepository.findById(id)
@@ -44,7 +46,9 @@ public class UserService {
         Long characterCount = characterCardRepository.countByCreatorAndIsDeletedFalse(user);
         Long postCount = postRepository.countByCreatedBy(user);
 
-        return  UserProfileResponse.from(user, isOwner, characterCount, postCount);
+        String profileImageUrl = imageUrlBuilder.buildUrl(user.getImageUrl());
+
+        return  UserProfileResponse.from(user, isOwner, characterCount, postCount, profileImageUrl);
     };
 
 
@@ -67,8 +71,10 @@ public class UserService {
         } else {
             nickname = request.nickname();
         }
-        user.updateProfile(nickname, request.imageUrl());
-        return UserProfileResponse.from(user,true);
+        user.updateProfile(nickname, request.profileImageUrl());
+
+        String profileImageUrl = imageUrlBuilder.buildUrl(user.getImageUrl());
+        return UserProfileResponse.from(user,true, profileImageUrl);
     }
 
     @Transactional

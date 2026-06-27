@@ -16,11 +16,11 @@ public record UserProfileResponse(
         boolean isOwner
 
 ) {
-    public static UserProfileResponse from(User user, boolean isOwner, Long characterCount, Long postCount) {
+    public static UserProfileResponse from(User user, boolean isOwner, Long characterCount, Long postCount, String profileImageUrl) {
         return new UserProfileResponse(
                 user.getPublicId(),
                 user.getNickname(),
-                user.getImageUrl(),
+                profileImageUrl,
                 user.getEmail(),
                 user.getPlan() != null? user.getPlan().getId(): null,
                 user.getIsPublic(),
@@ -30,11 +30,11 @@ public record UserProfileResponse(
         );
     }
 
-    public static UserProfileResponse from(User user, boolean isOwner) {
+    public static UserProfileResponse from(User user, boolean isOwner, String profileImageUrl) {
         return new UserProfileResponse(
                 user.getPublicId(),
                 user.getNickname(),
-                user.getImageUrl(),
+                profileImageUrl,
                 user.getEmail(),
                 user.getPlan() != null ? user.getPlan().getId() : null,
                 user.getIsPublic(),
