@@ -1,9 +1,9 @@
 package bluepill.server.dto.image;
 
 public enum ImageType {
-    PROFILE("profiles"),
+    PROFILE("users"),
     CHARACTER("characters"),
-    CHAT("chats");
+    LOG("logs");
 
     private final String prefix;
 
