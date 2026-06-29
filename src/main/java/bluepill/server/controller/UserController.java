@@ -2,6 +2,7 @@ package bluepill.server.controller;
 
 import bluepill.server.annotation.CurrentUserId;
 import bluepill.server.dto.common.ApiResponse;
+import bluepill.server.dto.user.UpdateProfileResponse;
 import bluepill.server.dto.user.UserProfileUpdateRequest;
 import bluepill.server.dto.user.UserProfileResponse;
 import bluepill.server.service.UserService;
@@ -42,8 +43,8 @@ public class UserController {
             - 이미지 URL을 입력하지 않으면 기존 이미지가 유지됩니다.
             """)
     @PatchMapping("/me")
-    public ApiResponse<UserProfileResponse> updateUserProfile(@Parameter(hidden = true) @CurrentUserId Long userId, @RequestBody UserProfileUpdateRequest request){
-        UserProfileResponse response = userService.updateProfile(userId, request);
+    public ApiResponse<UpdateProfileResponse> updateUserProfile(@Parameter(hidden = true) @CurrentUserId Long userId, @RequestBody UserProfileUpdateRequest request){
+        UpdateProfileResponse response = userService.updateProfile(userId, request);
 
         return ApiResponse.success("프로필 수정 성공", response);
     }

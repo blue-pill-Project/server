@@ -1,6 +1,7 @@
 package bluepill.server.service;
 
 import bluepill.server.domain.User;
+import bluepill.server.dto.user.UpdateProfileResponse;
 import bluepill.server.dto.user.UserProfileResponse;
 import bluepill.server.dto.user.UserProfileUpdateRequest;
 import bluepill.server.exception.BusinessException;
@@ -45,15 +46,14 @@ public class UserService {
 
         Long characterCount = characterCardRepository.countByCreatorAndIsDeletedFalse(user);
         Long postCount = postRepository.countByCreatedBy(user);
-
         String profileImageUrl = imageUrlBuilder.buildUrl(user.getImageUrl());
 
-        return  UserProfileResponse.from(user, isOwner, characterCount, postCount, profileImageUrl);
+        return UserProfileResponse.from(user, isOwner, characterCount, postCount, profileImageUrl);
     };
 
 
     @Transactional
-    public UserProfileResponse updateProfile(Long userId, UserProfileUpdateRequest request) {
+    public UpdateProfileResponse updateProfile(Long userId, UserProfileUpdateRequest request) {
         User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
@@ -74,7 +74,7 @@ public class UserService {
         user.updateProfile(nickname, request.profileImageUrl());
 
         String profileImageUrl = imageUrlBuilder.buildUrl(user.getImageUrl());
-        return UserProfileResponse.from(user,true, profileImageUrl);
+        return UpdateProfileResponse.from(user,profileImageUrl);
     }
 
     @Transactional

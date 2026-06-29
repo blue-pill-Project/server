@@ -64,12 +64,13 @@ public class User extends BaseTimeEntity {
         GOOGLE, DISCORD
     }
 
-    public static User createNewUser(String providerId, Provider provider, String email) {
+    public static User createNewUser(String providerId, Provider provider, String email, SubscriptionPlan plan) {
         return User.builder()
                 .publicId(UUID.randomUUID())
                 .providerId(providerId)
                 .provider(provider)
                 .email(email)
+                .plan(plan)
                 .build();
     }
 
