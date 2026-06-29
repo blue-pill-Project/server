@@ -12,4 +12,5 @@ public class PostListResponse {
     private List<PostListItem> content;
     private UUID nextCursor;
     private Boolean hasNext;
+    private Long total;
 }
