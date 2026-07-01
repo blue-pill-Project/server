@@ -1,6 +1,7 @@
 package bluepill.server.service;
 
 import bluepill.server.domain.User;
+import bluepill.server.dto.user.UpdateProfileResponse;
 import bluepill.server.dto.user.UserProfileResponse;
 import bluepill.server.dto.user.UserProfileUpdateRequest;
 import bluepill.server.exception.BusinessException;
@@ -8,6 +9,7 @@ import bluepill.server.exception.ErrorCode;
 import bluepill.server.repository.CharacterCardRepository;
 import bluepill.server.repository.PostRepository;
 import bluepill.server.repository.UserRepository;
+import bluepill.server.util.ImageUrlBuilder;
 import bluepill.server.util.NicknameGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,6 +26,7 @@ public class UserService {
     private final CharacterCardRepository characterCardRepository;
     private final PostRepository postRepository;
     private final NicknameGenerator nicknameGenerator;
+    private final ImageUrlBuilder imageUrlBuilder;
 
     public User findById(Long id) {
         return userRepository.findById(id)
@@ -43,13 +46,14 @@ public class UserService {
 
         Long characterCount = characterCardRepository.countByCreatorAndIsDeletedFalse(user);
         Long postCount = postRepository.countByCreatedBy(user);
+        String profileImageUrl = imageUrlBuilder.buildUrl(user.getImageUrl());
 
-        return  UserProfileResponse.from(user, isOwner, characterCount, postCount);
+        return UserProfileResponse.from(user, isOwner, characterCount, postCount, profileImageUrl);
     };
 
 
     @Transactional
-    public UserProfileResponse updateProfile(Long userId, UserProfileUpdateRequest request) {
+    public UpdateProfileResponse updateProfile(Long userId, UserProfileUpdateRequest request) {
         User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
@@ -67,8 +71,10 @@ public class UserService {
         } else {
             nickname = request.nickname();
         }
-        user.updateProfile(nickname, request.imageUrl());
-        return UserProfileResponse.from(user,true);
+        user.updateProfile(nickname, request.profileImageUrl());
+
+        String profileImageUrl = imageUrlBuilder.buildUrl(user.getImageUrl());
+        return UpdateProfileResponse.from(user,profileImageUrl);
     }
 
     @Transactional

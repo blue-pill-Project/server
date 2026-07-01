@@ -342,3 +342,12 @@ VALUES
    (SELECT user_id FROM users WHERE public_id = '11111111-1111-1111-1111-111111111111'),
    NOW(), NOW())
 ON CONFLICT (code) DO NOTHING;
+
+-- ==============================================================
+-- 3. 구독 플랜 예시 데이터 (FREE)
+-- ==============================================================
+INSERT INTO subscription_plans (plan_name, price, created_at, updated_at)
+SELECT 'FREE', 0, NOW(), NOW()
+    WHERE NOT EXISTS (
+    SELECT 1 FROM subscription_plans WHERE plan_name = 'PRO'
+);

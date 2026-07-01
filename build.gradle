@@ -17,6 +17,14 @@ repositories {
 	mavenCentral()
 }
 
+
+//aws 버전 지정
+dependencyManagement {
+	imports {
+		mavenBom 'software.amazon.awssdk:bom:2.46.14'
+	}
+}
+
 dependencies {
 	// Web
 	implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -51,6 +59,9 @@ dependencies {
 
 	// Swagger UI 및 OpenAPI 3.0 명세서 자동 생성
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.17'
+
+	//r2
+	implementation 'software.amazon.awssdk:s3'
 }
 
 tasks.named('test') {

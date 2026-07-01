@@ -1,6 +1,10 @@
 package bluepill.server.service;
 
+import bluepill.server.domain.SubscriptionPlan;
 import bluepill.server.domain.User;
+import bluepill.server.exception.BusinessException;
+import bluepill.server.exception.ErrorCode;
+import bluepill.server.repository.SubscriptionPlanRepository;
 import bluepill.server.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -13,6 +17,7 @@ import org.springframework.stereotype.Service;
 public class OAuth2UserService extends DefaultOAuth2UserService {
 
     private final UserRepository userRepository;
+    private final SubscriptionPlanRepository subscriptionPlanRepository;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) {
@@ -26,7 +31,11 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
 
         userRepository
                 .findByProviderAndProviderId(provider, providerId)
-                .orElseGet(() -> userRepository.save(User.createNewUser(providerId, provider, email)));
+                .orElseGet(() -> {
+                    SubscriptionPlan freePlan = subscriptionPlanRepository.findByPlanName("FREE")
+                            .orElseThrow(() -> new BusinessException(ErrorCode.PLAN_NOT_FOUND));
+                    return userRepository.save(User.createNewUser(providerId, provider, email, freePlan));
+                });
 
         return oAuth2User;
     }

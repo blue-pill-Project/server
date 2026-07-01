@@ -9,20 +9,19 @@ public record UserProfileResponse(
         String nickname,
         String profileImageUrl,
         String email,
-        Long planId,
+        String planName,
         Boolean isPublic,
         Long characterCount,
         Long postCount,
         boolean isOwner
-
 ) {
-    public static UserProfileResponse from(User user, boolean isOwner, Long characterCount, Long postCount) {
+    public static UserProfileResponse from(User user, boolean isOwner, Long characterCount, Long postCount, String profileImageUrl) {
         return new UserProfileResponse(
                 user.getPublicId(),
                 user.getNickname(),
-                user.getImageUrl(),
+                profileImageUrl,
                 user.getEmail(),
-                user.getPlan() != null? user.getPlan().getId(): null,
+                isOwner && user.getPlan() != null ? user.getPlan().getPlanName() : null,
                 user.getIsPublic(),
                 characterCount,
                 postCount,
@@ -36,7 +35,7 @@ public record UserProfileResponse(
                 user.getNickname(),
                 user.getImageUrl(),
                 user.getEmail(),
-                user.getPlan() != null ? user.getPlan().getId() : null,
+                isOwner && user.getPlan() != null ? user.getPlan().getPlanName() : null,
                 user.getIsPublic(),
                 0L,
                 0L,

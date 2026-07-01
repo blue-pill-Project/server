@@ -1,5 +1,6 @@
 package bluepill.server.repository;
 
+import bluepill.server.domain.LogRoom;
 import bluepill.server.domain.Post;
 import bluepill.server.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,4 +12,6 @@ public interface PostRepository extends JpaRepository<Post, Long>, PostRepositor
     Optional<Post> findByPublicId(UUID publicId);
 
     Long countByCreatedBy(User user);
+
+    Long countByLogRoom(LogRoom logRoom);
 }

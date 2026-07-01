@@ -39,15 +39,19 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth->auth
                         //swagger 허용
                         .requestMatchers(
+                                "/docs",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
-                                "/auth/reissue",
-                                "/auth/logout",
-                                "/dev/token/**"
+                                "/api/auth/reissue",
+                                "/api/auth/logout",
+                                "/api/dev/token/**"
                                 ).permitAll()
 
+                        //OAuth2 경로 허용
+                        .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
+
                         //캐릭터 카드 조회
-                        .requestMatchers(HttpMethod.GET, "/character-cards", "/character-cards/*").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/character-cards", "/api/character-cards/*").permitAll()
 
                         //그 외에는 요청 인증 필요
                         .anyRequest().authenticated()

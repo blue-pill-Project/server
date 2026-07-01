@@ -128,7 +128,9 @@ public class PostService {
                 ? content.get(content.size() - 1).getPublicId()
                 : null;
 
-        return new PostListResponse(content, nextCursor, hasNext);
+        long total = postRepository.countByLogRoom(room);
+
+        return new PostListResponse(content, nextCursor, hasNext, total);
     }
 
     public PostListResponse getPosts(UUID cursor, int size, Long viewerId) {
@@ -174,7 +176,9 @@ public class PostService {
                 ? content.get(content.size() - 1).getPublicId()
                 : null;
 
-        return new PostListResponse(content, nextCursor, hasNext);
+        long total = postRepository.count();
+
+        return new PostListResponse(content, nextCursor, hasNext, total);
 
     }
 
