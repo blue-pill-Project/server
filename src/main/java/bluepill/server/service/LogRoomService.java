@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -73,13 +74,19 @@ public class LogRoomService {
         List<Long> roomIds = page.stream().map(LogRoomPageRow::roomId).toList();
         List<MemberImageRow> memberImages = logRoomRepository.findMemberImagesByRoomIds(roomIds);
 
-        // 방별 그룹화: 멤버 수 + 이미지 배열 (이미지 null은 배열에서 제외, 카운트는 전체 멤버)
+        // 방별 creatorUserId 매핑
+        Map<Long, Long> creatorByRoom = page.stream()
+                .collect(Collectors.toMap(LogRoomPageRow::roomId, LogRoomPageRow::creatorUserId));
+
+        // 방별 그룹화: 멤버 수 + 참가자 배열
         Map<Long, List<LogRoomParticipant>> participantsByRoom = new LinkedHashMap<>();
         Map<Long, Long> countByRoom = new HashMap<>();
         for (MemberImageRow row : memberImages) {
             countByRoom.merge(row.roomId(), 1L, Long::sum);
+            boolean isUser = row.memberUserId() != null;
+            boolean isOwner = isUser && row.memberUserId().equals(creatorByRoom.get(row.roomId()));
             participantsByRoom.computeIfAbsent(row.roomId(), k -> new ArrayList<>())
-                    .add(new LogRoomParticipant(row.memberPublicId(), row.imageUrl()));
+                    .add(new LogRoomParticipant(row.memberPublicId(), row.imageUrl(), isUser, isOwner));
         }
 
         // 쿼리3: 각 방의 캐릭터 사진 (postDate DESC, timeSlot DESC 정렬됨)

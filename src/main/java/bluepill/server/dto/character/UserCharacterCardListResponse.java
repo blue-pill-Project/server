@@ -13,4 +13,5 @@ public class UserCharacterCardListResponse {
     private List<UserCharacterCardListItem> content;
     private UUID nextCursor;
     private boolean hasNext;
+    private Long total;
 }
