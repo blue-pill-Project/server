@@ -23,4 +23,6 @@ public interface CharacterCardRepositoryCustom {
             UUID cursor,
             int size
     );
+
+    long countLibrary(Long viewerId, String keyword);
 }

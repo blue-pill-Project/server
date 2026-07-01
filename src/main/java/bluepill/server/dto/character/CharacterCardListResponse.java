@@ -13,4 +13,5 @@ public class CharacterCardListResponse {
     private List<CharacterCardListItem> content;
     private UUID nextCursor;   // 마지막 페이지면 null
     private boolean hasNext;
+    private Long total;
 }
