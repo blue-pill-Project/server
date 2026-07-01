@@ -10,4 +10,6 @@ import java.util.UUID;
 public class LogRoomParticipant {
     private UUID memberPublicId;
     private String imageUrl;
+    private Boolean isUser;
+    private Boolean isOwner;
 }
