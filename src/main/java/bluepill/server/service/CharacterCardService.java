@@ -133,7 +133,9 @@ public class CharacterCardService {
                 ? result.get(result.size() - 1).getPublicId()
                 : null;
 
-        return new CharacterCardListResponse(result, nextCursor, hasNext);
+        long total = characterCardRepository.countLibrary(viewerId, keyword);
+
+        return new CharacterCardListResponse(result, nextCursor, hasNext, total);
     }
 
     public CharacterCardDetailResponse getDetail(UUID publicId, Long viewerId) {
@@ -177,7 +179,11 @@ public class CharacterCardService {
                 ? result.get(result.size() - 1).getPublicId()
                 : null;
 
-        return new UserCharacterCardListResponse(result, nextCursor, hasNext);
+        long total = isOwner
+                ? characterCardRepository.countByCreatorAndIsDeletedFalse(target)
+                : characterCardRepository.countByCreatorAndIsDeletedFalseAndIsPublicTrue(target);
+
+        return new UserCharacterCardListResponse(result, nextCursor, hasNext, total);
     }
 
     private Long generateUniqueCode() {

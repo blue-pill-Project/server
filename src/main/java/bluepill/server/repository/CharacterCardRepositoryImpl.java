@@ -159,4 +159,23 @@ public class CharacterCardRepositoryImpl implements CharacterCardRepositoryCusto
         return c.createdAt.lt(cursorCreatedAt)
                 .or(c.createdAt.eq(cursorCreatedAt).and(c.id.lt(cursorId)));
     }
+
+    @Override
+    public long countLibrary(Long viewerId, String keyword) {
+        QCharacterCard c = QCharacterCard.characterCard;
+        QUser u = QUser.user;
+
+        Long count = queryFactory
+                .select(c.count())
+                .from(c)
+                .leftJoin(c.creator, u)
+                .where(
+                        c.isDeleted.isFalse(),
+                        visibleTo(c, viewerId),
+                        keywordContains(c, u, keyword)
+                )
+                .fetchOne();
+
+        return count != null ? count : 0L;
+    }
 }
