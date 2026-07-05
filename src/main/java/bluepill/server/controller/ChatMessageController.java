@@ -34,7 +34,7 @@ public class ChatMessageController {
     @GetMapping("/{publicId}/chats")
     public ApiResponse<ChatMessageListResponse> getMessages(
             @PathVariable UUID publicId,
-            @RequestParam(required = false) UUID cursor,
+            @RequestParam(required = false) Long cursor,
             @RequestParam(defaultValue = "10") int size,
             @CurrentUserId Long userId
     ){

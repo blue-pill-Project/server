@@ -59,7 +59,7 @@ public class ChatMessageService {
         );
     }
 
-    public ChatMessageListResponse getMessages(UUID roomPublicId, UUID cursor, int size, Long userId) {
+    public ChatMessageListResponse getMessages(UUID roomPublicId, Long cursor, int size, Long userId) {
 
         LogRoom logRoom = logRoomRepository.findByPublicId(roomPublicId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.LOG_ROOM_NOT_FOUND));
@@ -79,15 +79,14 @@ public class ChatMessageService {
 
         List<ChatMessageItem> content = messages.stream()
                 .map(m -> new ChatMessageItem(
-                        m.getPublicId(),
                         m.getContent(),
                         m.getSender().getId().equals(member.getId()),
                         m.getCreatedAt()
                 ))
                 .toList();
 
-        UUID nextCursor = hasMore && !content.isEmpty()
-                ? content.get(content.size() - 1).publicId()
+        Long nextCursor = hasMore && !messages.isEmpty()
+                ? messages.get(messages.size() - 1).getId()
                 : null;
 
         return new ChatMessageListResponse(content, nextCursor, hasMore);
