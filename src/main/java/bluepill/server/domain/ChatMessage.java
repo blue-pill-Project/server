@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
-import java.util.UUID;
 
 @Entity
 @Table(name = "chat_messages")
@@ -18,9 +17,6 @@ public class ChatMessage {
     @Column(name="chat_message_id")
     private Long id;
 
-    @Column(name = "public_id", nullable = false, unique = true, updatable = false)
-    private UUID publicId;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "log_room_id", nullable = false, updatable = false)
     private LogRoom logRoom;
@@ -29,7 +25,7 @@ public class ChatMessage {
     @JoinColumn(name = "sender_id", nullable = false, updatable = false)
     private LogRoomMember sender;
 
-    @Column(name = "content", nullable=false )
+    @Column(name = "content", nullable=false, columnDefinition = "TEXT")
     private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -42,9 +38,6 @@ public class ChatMessage {
     @PrePersist //DB에 저장되기 직전에 자동 실행
     void prePersist() {
         this.createdAt = Instant.now();
-        if (this.publicId == null) {
-            this.publicId = UUID.randomUUID();
-        }
     }
 
     @Builder

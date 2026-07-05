@@ -7,11 +7,13 @@ import bluepill.server.dto.chat.ChatMessageResponse;
 import bluepill.server.dto.common.ApiResponse;
 import bluepill.server.service.ChatMessageService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
+@Tag(name="Chat")
 @RestController
 @RequestMapping("/api/log-rooms")
 @RequiredArgsConstructor
@@ -34,7 +36,7 @@ public class ChatMessageController {
     @GetMapping("/{publicId}/chats")
     public ApiResponse<ChatMessageListResponse> getMessages(
             @PathVariable UUID publicId,
-            @RequestParam(required = false) UUID cursor,
+            @RequestParam(required = false) Long cursor,
             @RequestParam(defaultValue = "10") int size,
             @CurrentUserId Long userId
     ){
