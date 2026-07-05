@@ -26,3 +26,6 @@ app:
   cookie:
     secure: false
     same-site: Lax
+
+chat-agent:
+  url: http://localhost:8001

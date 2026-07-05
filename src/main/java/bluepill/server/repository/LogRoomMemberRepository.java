@@ -13,4 +13,6 @@ public interface LogRoomMemberRepository extends JpaRepository<LogRoomMember, Lo
     Optional<LogRoomMember> findByPublicId(UUID publicId);
 
     Optional<LogRoomMember> findByLogRoom_IdAndUser_UserId(Long logRoomId, Long userId);
+
+    Optional<LogRoomMember> findByLogRoom_IdAndSnapshotIsNotNull(Long logRoomId);
 }

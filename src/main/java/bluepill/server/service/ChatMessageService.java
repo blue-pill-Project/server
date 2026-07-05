@@ -1,9 +1,7 @@
 package bluepill.server.service;
 
-import bluepill.server.domain.ChatMessage;
-import bluepill.server.domain.LogPhoto;
-import bluepill.server.domain.LogRoom;
-import bluepill.server.domain.LogRoomMember;
+import bluepill.server.client.ChatAgentClient;
+import bluepill.server.domain.*;
 import bluepill.server.dto.chat.ChatMessageListResponse;
 import bluepill.server.dto.chat.ChatMessageItem;
 import bluepill.server.dto.chat.ChatMessageRequest;
@@ -15,11 +13,14 @@ import bluepill.server.repository.LogPhotoRepository;
 import bluepill.server.repository.LogRoomMemberRepository;
 import bluepill.server.repository.LogRoomRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ChatMessageService {
@@ -28,8 +29,11 @@ public class ChatMessageService {
     private final LogRoomRepository logRoomRepository;
     private final LogRoomMemberRepository logRoomMemberRepository;
     private final LogPhotoRepository logPhotoRepository;
+    private final ChatAgentClient chatAgentClient;
 
+    @Transactional()
     public ChatMessageResponse send(UUID roomPublicId, ChatMessageRequest request, Long userId) {
+
         LogRoom logRoom = logRoomRepository.findByPublicId(roomPublicId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.LOG_ROOM_NOT_FOUND));
 
@@ -49,8 +53,30 @@ public class ChatMessageService {
                 .content(request.content())
                 .logPhoto(quotedPhoto)
                 .build();
-
         chatMessageRepository.save(message);
+
+        //캐릭터 조회 -> ai 답변 생성 -> db 저장
+        logRoomMemberRepository.findByLogRoom_IdAndSnapshotIsNotNull(logRoom.getId())
+                .ifPresent(characterMember -> {
+                    CharacterSnapshot snapshot = characterMember.getSnapshot();
+                    try {
+                        String aiReply = chatAgentClient.generateReply(
+                                logRoom.getId().toString(),
+                                snapshot.getCharacterId().toString(),
+                                userId.toString(),
+                                request.content()
+                        );
+                        if (aiReply != null) {
+                            chatMessageRepository.save(ChatMessage.builder()
+                                    .logRoom(logRoom)
+                                    .sender(characterMember)
+                                    .content(aiReply)
+                                    .build());
+                        }
+                    } catch (Exception e) {
+                        log.error("chat-agent 호출 실패 (roomId={})", logRoom.getId(), e);
+                    }
+                });
 
         return new ChatMessageResponse(
                 message.getContent(),
