@@ -14,6 +14,7 @@ import bluepill.server.dto.common.ApiResponse;
 import bluepill.server.service.CharacterCardService;
 import bluepill.server.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
 
+@Tag(name="CharacterCard")
 @RestController
 @RequestMapping("/api/character-cards")
 @RequiredArgsConstructor
