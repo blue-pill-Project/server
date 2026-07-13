@@ -15,6 +15,7 @@ import bluepill.server.dto.post.PostShareResponse;
 import bluepill.server.service.LogRoomService;
 import bluepill.server.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -35,6 +36,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+@Tag(name="LogRoom")
 @RestController
 @RequestMapping("/api/log-rooms")
 @RequiredArgsConstructor
