@@ -86,7 +86,7 @@ public class LogRoomService {
             boolean isUser = row.memberUserId() != null;
             boolean isOwner = isUser && row.memberUserId().equals(creatorByRoom.get(row.roomId()));
             participantsByRoom.computeIfAbsent(row.roomId(), k -> new ArrayList<>())
-                    .add(new LogRoomParticipant(row.memberPublicId(), row.imageUrl(), isUser, isOwner));
+                    .add(new LogRoomParticipant(row.memberPublicId(), row.memberName(), row.imageUrl(), isUser, isOwner));
         }
 
         // 쿼리3: 각 방의 캐릭터 사진 (postDate DESC, timeSlot DESC 정렬됨)

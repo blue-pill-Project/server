@@ -9,6 +9,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class LogRoomParticipant {
     private UUID memberPublicId;
+    private String name;
     private String imageUrl;
     private Boolean isUser;
     private Boolean isOwner;
