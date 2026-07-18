@@ -44,7 +44,8 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/api/auth/reissue",
                                 "/api/auth/logout",
-                                "/api/dev/token/**"
+                                "/api/dev/token/**",
+                                "/api/dev/daily-log/**"
                                 ).permitAll()
 
                         //OAuth2 경로 허용
