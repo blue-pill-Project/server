@@ -351,3 +351,36 @@ SELECT 'FREE', 0, NOW(), NOW()
     WHERE NOT EXISTS (
     SELECT 1 FROM subscription_plans WHERE plan_name = 'PRO'
 );
+
+-- ==============================================================
+-- 4. 테스트용 로그방 + 카이토 스냅샷 + 멤버 (daily-log 저장 테스트용)
+-- ==============================================================
+
+-- 4-1. 카이토(code 1001)의 스냅샷 v1 (character_card 내용을 그대로 복사)
+INSERT INTO character_snapshots
+    (character_id, version, name, description, prompt, image_url, example_dialogues, created_at)
+SELECT character_id, 1, name, description, prompt, image_url, '[]'::jsonb, NOW()
+FROM character_cards
+WHERE code = 1001
+ON CONFLICT (character_id, version) DO NOTHING;
+
+-- 4-2. 로그방 1개
+INSERT INTO log_rooms (public_id, name, is_public, created_by, created_at, updated_at)
+SELECT gen_random_uuid(), '카이토방', true,
+       (SELECT user_id FROM users WHERE public_id = '11111111-1111-1111-1111-111111111111'),
+       NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM log_rooms WHERE name = '카이토방');
+
+-- 4-3. 그 방에 카이토 스냅샷을 멤버로 추가 (user_id=NULL → 캐릭터 멤버)
+INSERT INTO log_room_members (public_id, log_room_id, user_id, snapshot_id, created_at, updated_at)
+SELECT gen_random_uuid(),
+       (SELECT log_room_id FROM log_rooms WHERE name = '카이토방'),
+       NULL,
+       (SELECT cs.snapshot_id FROM character_snapshots cs
+          JOIN character_cards cc ON cc.character_id = cs.character_id
+        WHERE cc.code = 1001 AND cs.version = 1),
+       NOW(), NOW()
+WHERE NOT EXISTS (
+    SELECT 1 FROM log_room_members lrm
+    WHERE lrm.log_room_id = (SELECT log_room_id FROM log_rooms WHERE name = '카이토방')
+);
