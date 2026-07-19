@@ -4,6 +4,7 @@ import bluepill.server.domain.LogRoom;
 import bluepill.server.domain.Post;
 import bluepill.server.domain.User;
 import bluepill.server.dto.logroom.DayLogEntry;
+import bluepill.server.dto.logroom.LogRoomParticipant;
 import bluepill.server.dto.post.PostListItem;
 import bluepill.server.dto.post.PostListResponse;
 import bluepill.server.dto.post.PostShareRequest;
@@ -13,6 +14,7 @@ import bluepill.server.exception.BusinessException;
 import bluepill.server.exception.ErrorCode;
 import bluepill.server.repository.LogRoomMemberRepository;
 import bluepill.server.repository.LogRoomRepository;
+import bluepill.server.repository.MemberImageRow;
 import bluepill.server.repository.PostPageRow;
 import bluepill.server.repository.PostPhotoRow;
 import bluepill.server.repository.PostRepository;
@@ -26,6 +28,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -112,15 +115,21 @@ public class PostService {
                     ));
         }
 
+        // 쿼리3: 그 방의 참가자 목록
+        Map<Long, List<LogRoomParticipant>> participantsByRoom = buildParticipantsByRoom(page);
+
         // PostListItem 조립
         List<PostListItem> content = page.stream()
                 .map(r -> new PostListItem(
                         r.publicId(),
+                        r.roomPublicId(),
+                        r.roomName(),
                         r.postDate(),
                         r.timeSlot(),
                         new PostSharer(r.sharerPublicId(), r.sharerNickname(), r.sharerProfileImageUrl()),
                         r.sharerUserId().equals(viewerId),
                         r.createdAt(),
+                        participantsByRoom.getOrDefault(r.roomId(), List.of()),
                         photosByPost.getOrDefault(r.postId(), List.of())))
                 .toList();
 
@@ -161,14 +170,19 @@ public class PostService {
                     ));
         }
 
+        Map<Long, List<LogRoomParticipant>> participantsByRoom = buildParticipantsByRoom(page);
+
         List<PostListItem> content = page.stream()
                 .map(row -> new PostListItem(
                         row.publicId(),
+                        row.roomPublicId(),
+                        row.roomName(),
                         row.postDate(),
                         row.timeSlot(),
                         new PostSharer(row.sharerPublicId(), row.sharerNickname(), row.sharerProfileImageUrl()),
                         viewerId != null && row.sharerUserId().equals(viewerId),
                         row.createdAt(),
+                        participantsByRoom.getOrDefault(row.roomId(), List.of()),
                         photosByPost.getOrDefault(row.postId(), List.of())))
                 .toList();
 
@@ -180,6 +194,23 @@ public class PostService {
 
         return new PostListResponse(content, nextCursor, hasNext, total);
 
+    }
+
+    private Map<Long, List<LogRoomParticipant>> buildParticipantsByRoom(List<PostPageRow> page) {
+        List<Long> roomIds = page.stream().map(PostPageRow::roomId).distinct().toList();
+        List<MemberImageRow> memberImages = logRoomRepository.findMemberImagesByRoomIds(roomIds);
+
+        Map<Long, Long> ownerByRoom = page.stream()
+                .collect(Collectors.toMap(PostPageRow::roomId, PostPageRow::roomCreatorUserId, (a, b) -> a));
+
+        Map<Long, List<LogRoomParticipant>> participantsByRoom = new LinkedHashMap<>();
+        for (MemberImageRow row : memberImages) {
+            boolean isUser = row.memberUserId() != null;
+            boolean isOwner = isUser && row.memberUserId().equals(ownerByRoom.get(row.roomId()));
+            participantsByRoom.computeIfAbsent(row.roomId(), k -> new ArrayList<>())
+                    .add(new LogRoomParticipant(row.memberPublicId(), row.memberName(), row.imageUrl(), isUser, isOwner));
+        }
+        return participantsByRoom;
     }
 
     public void deletePost(UUID publicId, Long viewerId) {

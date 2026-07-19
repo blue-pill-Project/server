@@ -29,7 +29,7 @@ public class ChatMessageService {
     private final LogRoomRepository logRoomRepository;
     private final LogRoomMemberRepository logRoomMemberRepository;
     private final LogPhotoRepository logPhotoRepository;
-    private final ChatAgentClient chatAgentClient;
+    private final ChatAiReplyService chatAiReplyService;
 
     @Transactional()
     public ChatMessageResponse send(UUID roomPublicId, ChatMessageRequest request, Long userId) {
@@ -55,28 +55,8 @@ public class ChatMessageService {
                 .build();
         chatMessageRepository.save(message);
 
-        //캐릭터 조회 -> ai 답변 생성 -> db 저장
-        logRoomMemberRepository.findByLogRoom_IdAndSnapshotIsNotNull(logRoom.getId())
-                .ifPresent(characterMember -> {
-                    CharacterSnapshot snapshot = characterMember.getSnapshot();
-                    try {
-                        String aiReply = chatAgentClient.generateReply(
-                                logRoom.getId().toString(),
-                                snapshot.getCharacterId().toString(),
-                                userId.toString(),
-                                request.content()
-                        );
-                        if (aiReply != null) {
-                            chatMessageRepository.save(ChatMessage.builder()
-                                    .logRoom(logRoom)
-                                    .sender(characterMember)
-                                    .content(aiReply)
-                                    .build());
-                        }
-                    } catch (Exception e) {
-                        log.error("chat-agent 호출 실패 (roomId={})", logRoom.getId(), e);
-                    }
-                });
+        //답변이 오지않아도 POST 전송할 수 있도록 비동기 처리
+        chatAiReplyService.generateAndSaveReply(logRoom.getId(), userId, request.content());
 
         return new ChatMessageResponse(
                 message.getContent(),
@@ -116,5 +96,15 @@ public class ChatMessageService {
                 : null;
 
         return new ChatMessageListResponse(content, nextCursor, hasMore);
+    }
+
+    public Long resolveRoomIdForSubscribe(UUID roomPublicId, Long userId){
+        LogRoom logRoom = logRoomRepository.findByPublicId(roomPublicId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.LOG_ROOM_NOT_FOUND));
+
+        logRoomMemberRepository.findByLogRoom_IdAndUser_UserId(logRoom.getId(), userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.LOG_ROOM_FORBIDDEN));
+
+        return logRoom.getId();
     }
 }

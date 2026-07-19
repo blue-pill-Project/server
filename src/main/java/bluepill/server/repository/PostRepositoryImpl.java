@@ -20,13 +20,18 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     public List<PostPageRow> findPostsPage(Long roomId, UUID cursorPublicId, int size) {
         QPost p = QPost.post;
         QUser u = QUser.user;
+        QLogRoom lr = QLogRoom.logRoom;
+        QUser roomOwner = new QUser("roomOwner");
 
         return queryFactory
                 .select(Projections.constructor(PostPageRow.class,
-                        p.id, p.publicId, p.postDate, p.timeSlot, p.createdAt,
+                        p.id, p.publicId, lr.id, lr.publicId, lr.name, roomOwner.userId,
+                        p.postDate, p.timeSlot, p.createdAt,
                         u.userId, u.publicId, u.nickname, u.imageUrl))
                 .from(p)
                 .join(p.createdBy, u)
+                .join(p.logRoom, lr)
+                .join(lr.createdBy, roomOwner)
                 .where(
                         p.logRoom.id.eq(roomId),
                         cursorCondition(p, cursorPublicId)
@@ -88,14 +93,17 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         QPost p = QPost.post;
         QUser u = QUser.user;
         QLogRoom lr = QLogRoom.logRoom;
+        QUser roomOwner = new QUser("roomOwner");
 
         return queryFactory
                 .select(Projections.constructor(PostPageRow.class,
-                        p.id, p.publicId, p.postDate, p.timeSlot, p.createdAt,
+                        p.id, p.publicId, lr.id, lr.publicId, lr.name, roomOwner.userId,
+                        p.postDate, p.timeSlot, p.createdAt,
                         u.userId, u.publicId, u.nickname, u.imageUrl))
                 .from(p)
                 .join(p.createdBy, u)
                 .join(p.logRoom, lr)
+                .join(lr.createdBy, roomOwner)
                 .where(
                         lr.isPublic.isTrue(),
                         cursorCondition(p, cursorPublicId)

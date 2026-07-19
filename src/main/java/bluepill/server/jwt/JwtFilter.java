@@ -49,6 +49,8 @@ public class JwtFilter extends OncePerRequestFilter {
         if (bearer != null && bearer.startsWith("Bearer ")) {
             return bearer.substring(7);
         }
-        return null;
+
+        //EventSource는 헤더를 보낼 수 없으므로 파라미터 fallback
+        return  request.getParameter("token");
     }
 }
