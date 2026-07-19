@@ -5,11 +5,13 @@ import bluepill.server.dto.chat.ChatMessageListResponse;
 import bluepill.server.dto.chat.ChatMessageRequest;
 import bluepill.server.dto.chat.ChatMessageResponse;
 import bluepill.server.dto.common.ApiResponse;
+import bluepill.server.repository.ChatSseEmitterRepository;
 import bluepill.server.service.ChatMessageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.UUID;
 
@@ -19,6 +21,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ChatMessageController {
     private final ChatMessageService chatMessageService;
+    private final ChatSseEmitterRepository chatSseEmitterRepository;
 
     @Operation(summary = "채팅 전송")
     @PostMapping("/{publicId}/chats")
@@ -43,5 +46,11 @@ public class ChatMessageController {
         ChatMessageListResponse response = chatMessageService.getMessages(publicId, cursor, size, userId);
 
         return ApiResponse.success("채팅방 메시지 목록 조회 성공", response);
+    }
+
+    @GetMapping("/{publicId}/chats/stream")
+    public SseEmitter subscribe(@PathVariable UUID publicId, @CurrentUserId Long userId){
+        Long logRoomId = chatMessageService.resolveRoomIdForSubscribe(publicId,userId);
+        return chatSseEmitterRepository.subscribe(logRoomId);
     }
 }
