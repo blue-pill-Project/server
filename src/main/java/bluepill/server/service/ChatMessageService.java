@@ -97,4 +97,14 @@ public class ChatMessageService {
 
         return new ChatMessageListResponse(content, nextCursor, hasMore);
     }
+
+    public Long resolveRoomIdForSubscribe(UUID roomPublicId, Long userId){
+        LogRoom logRoom = logRoomRepository.findByPublicId(roomPublicId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.LOG_ROOM_NOT_FOUND));
+
+        logRoomMemberRepository.findByLogRoom_IdAndUser_UserId(logRoom.getId(), userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.LOG_ROOM_FORBIDDEN));
+
+        return logRoom.getId();
+    }
 }
