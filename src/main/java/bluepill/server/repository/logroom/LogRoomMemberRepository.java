@@ -18,6 +18,8 @@ public interface LogRoomMemberRepository extends JpaRepository<LogRoomMember, Lo
 
     Optional<LogRoomMember> findByLogRoom_IdAndSnapshotIsNotNull(Long logRoomId);
 
+    long countByUser_UserId(Long userId);
+
     // 활성 캐릭터 멤버(스냅샷 있는) 전체 : daily-log 스케줄러가 순회할 대상
     @Query("""
             SELECT m.id AS memberId,
