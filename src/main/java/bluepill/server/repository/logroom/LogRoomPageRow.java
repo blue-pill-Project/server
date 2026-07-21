@@ -1,4 +1,4 @@
-package bluepill.server.repository;
+package bluepill.server.repository.logroom;
 
 import java.time.Instant;
 import java.util.UUID;
