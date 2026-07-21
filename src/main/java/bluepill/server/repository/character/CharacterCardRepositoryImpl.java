@@ -1,4 +1,4 @@
-package bluepill.server.repository;
+package bluepill.server.repository.character;
 
 import bluepill.server.domain.QCharacterCard;
 import bluepill.server.domain.QUser;

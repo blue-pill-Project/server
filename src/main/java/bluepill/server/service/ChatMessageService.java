@@ -1,6 +1,5 @@
 package bluepill.server.service;
 
-import bluepill.server.client.ChatAgentClient;
 import bluepill.server.domain.*;
 import bluepill.server.dto.chat.ChatMessageListResponse;
 import bluepill.server.dto.chat.ChatMessageItem;
@@ -8,10 +7,10 @@ import bluepill.server.dto.chat.ChatMessageRequest;
 import bluepill.server.dto.chat.ChatMessageResponse;
 import bluepill.server.exception.BusinessException;
 import bluepill.server.exception.ErrorCode;
-import bluepill.server.repository.ChatMessageRepository;
-import bluepill.server.repository.LogPhotoRepository;
-import bluepill.server.repository.LogRoomMemberRepository;
-import bluepill.server.repository.LogRoomRepository;
+import bluepill.server.repository.chat.ChatMessageRepository;
+import bluepill.server.repository.logroom.LogPhotoRepository;
+import bluepill.server.repository.logroom.LogRoomMemberRepository;
+import bluepill.server.repository.logroom.LogRoomRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

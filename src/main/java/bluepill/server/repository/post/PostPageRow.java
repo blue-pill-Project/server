@@ -1,4 +1,4 @@
-package bluepill.server.repository;
+package bluepill.server.repository.post;
 
 import java.time.Instant;
 import java.time.LocalDate;

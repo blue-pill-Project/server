@@ -1,4 +1,4 @@
-package bluepill.server.repository;
+package bluepill.server.repository.character;
 
 import bluepill.server.domain.CharacterSnapshot;
 import org.springframework.data.jpa.repository.JpaRepository;
