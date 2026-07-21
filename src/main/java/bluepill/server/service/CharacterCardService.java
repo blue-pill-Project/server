@@ -13,7 +13,7 @@ import bluepill.server.dto.character.UserCharacterCardListItem;
 import bluepill.server.dto.character.UserCharacterCardListResponse;
 import bluepill.server.exception.BusinessException;
 import bluepill.server.exception.ErrorCode;
-import bluepill.server.repository.CharacterCardRepository;
+import bluepill.server.repository.character.CharacterCardRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

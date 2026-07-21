@@ -1,4 +1,4 @@
-package bluepill.server.repository;
+package bluepill.server.repository.character;
 
 import bluepill.server.dto.character.CharacterCardListItem;
 import bluepill.server.dto.character.CharacterSortType;

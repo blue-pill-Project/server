@@ -1,4 +1,4 @@
-package bluepill.server.repository;
+package bluepill.server.repository.post;
 
 import java.util.List;
 import java.util.UUID;

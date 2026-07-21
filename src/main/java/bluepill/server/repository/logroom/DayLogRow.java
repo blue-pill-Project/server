@@ -1,9 +1,9 @@
-package bluepill.server.repository;
+package bluepill.server.repository.logroom;
 
 import java.util.UUID;
 
-public record PostPhotoRow(
-        Long postId,
+public record DayLogRow(
+        Integer timeSlot,
         UUID memberPublicId,
         UUID photoPublicId,
         String caption,
