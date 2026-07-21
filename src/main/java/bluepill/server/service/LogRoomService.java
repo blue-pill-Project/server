@@ -139,7 +139,9 @@ public class LogRoomService {
                 ? content.get(content.size() - 1).getPublicId()
                 : null;
 
-        return new LogRoomListResponse(content, nextCursor, hasNext);
+        long total = logRoomMemberRepository.countByUser_UserId(viewerId);
+
+        return new LogRoomListResponse(content, nextCursor, hasNext, total);
     }
 
     @Transactional

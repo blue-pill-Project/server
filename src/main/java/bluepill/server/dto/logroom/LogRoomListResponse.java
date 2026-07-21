@@ -12,4 +12,5 @@ public class LogRoomListResponse {
     private List<LogRoomListItem> content;
     private UUID nextCursor;
     private Boolean hasNext;
+    private Long total;
 }
