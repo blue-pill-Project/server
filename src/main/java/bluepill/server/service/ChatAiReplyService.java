@@ -49,7 +49,7 @@ public class ChatAiReplyService {
 
                             //저장완료 즉시 구독중인 클라이언트에 push
                             chatSseEmitterRepository.sendToRoom(logRoomId,
-                                    new ChatMessageItem(saved.getContent(), false, saved.getCreatedAt()));
+                                    new ChatMessageItem(saved.getContent(), false, saved.getCreatedAt(), null));
                         }
                     }catch (Exception e){
                         log.error("chat-agent 호출 실패 (roomId={})", logRoomId, e);
