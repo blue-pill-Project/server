@@ -30,6 +30,7 @@ import bluepill.server.repository.logroom.LogRoomPageRow;
 import bluepill.server.repository.logroom.LogRoomRelationshipRepository;
 import bluepill.server.repository.logroom.LogRoomRepository;
 import bluepill.server.repository.logroom.MemberImageRow;
+import bluepill.server.util.ImageUrlBuilder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -60,6 +61,7 @@ public class LogRoomService {
     private final CharacterCardRepository characterCardRepository;
     private final CharacterSnapshotRepository characterSnapshotRepository;
     private final UserService userService;
+    private final ImageUrlBuilder imageUrlBuilder;
 
     public LogRoomListResponse getMyLogRooms(Long viewerId, UUID cursor, int size) {
         // 쿼리1: 방 페이지(+방장)
@@ -86,7 +88,7 @@ public class LogRoomService {
             boolean isUser = row.memberUserId() != null;
             boolean isOwner = isUser && row.memberUserId().equals(creatorByRoom.get(row.roomId()));
             participantsByRoom.computeIfAbsent(row.roomId(), k -> new ArrayList<>())
-                    .add(new LogRoomParticipant(row.memberPublicId(), row.memberName(), row.imageUrl(), isUser, isOwner));
+                    .add(new LogRoomParticipant(row.memberPublicId(), row.memberName(), imageUrlBuilder.buildUrl(row.imageUrl()), isUser, isOwner));
         }
 
         // 쿼리3: 각 방의 캐릭터 사진 (postDate DESC, timeSlot DESC 정렬됨)
@@ -126,7 +128,7 @@ public class LogRoomService {
                         r.publicId(),
                         r.name(),
                         r.isPublic(),
-                        bgByRoom.get(r.roomId()),
+                        imageUrlBuilder.buildUrl(bgByRoom.get(r.roomId())),
                         countByRoom.getOrDefault(r.roomId(), 0L),
                         r.createdAt(),
                         r.creatorUserId().equals(viewerId),
@@ -232,10 +234,10 @@ public class LogRoomService {
                             row.memberPublicId(),
                             row.photoPublicId(),
                             row.caption(),
-                            row.imageUrl(),
+                            imageUrlBuilder.buildUrl(row.imageUrl()),
                             row.authorType(),
                             row.authorName(),
-                            row.authorImageUrl()
+                            imageUrlBuilder.buildUrl(row.authorImageUrl())
                     ));
         }
 
@@ -279,7 +281,7 @@ public class LogRoomService {
                 card.getPublicId(),
                 snapshot.getName(),
                 snapshot.getDescription(),
-                snapshot.getImageUrl(),
+                imageUrlBuilder.buildUrl(snapshot.getImageUrl()),
                 card.getUseCnt(),
                 card.getIsDeleted(),
                 card.getIsPublic(),

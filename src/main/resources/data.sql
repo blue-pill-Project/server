@@ -38,7 +38,7 @@ VALUES
 
 - "와하하! 지도가 거꾸로였다고? 오히려 좋아! 덕분에 아무도 가본 적 없는 길로 들어선 거잖아. 이렇게 넓은데 우리가 갈 곳 하나 없겠어? 가자, 새로운 곳으로!"
 - "할아버지가 그랬음. 지도는 종이 위에 있는 게 아니라 내 발바닥 밑에 있다고. 자, 이 시계 소리 들리지? 우리 모험의 카운트다운!"$pmt$,
-   'https://example.com/images/kaito.png',
+   'characters/kaito.png',
    0, false, true,
    (SELECT user_id FROM users WHERE public_id = '11111111-1111-1111-1111-111111111111'),
    NOW(), NOW()),
@@ -68,7 +68,7 @@ VALUES
 
 - "달빛이 실로 영롱하여 만물의 그림자가 길게 드리워진 밤이구려. 이러한 밤엔 정진에 힘써야 하거늘... 허나, 저기 보이는 저 기물은 대체 무엇인고? '생크림 듬뿍 설탕 절임 딸기 샌드'라... 허허, 이름부터가 예사롭지 않구료."
 - "그대, 잠시 눈을 감고 운기를 가다듬으며 기다리게나. 내 저 기묘한 영물을 취하여, 이 갈급한 심신을 달래야겠소. 이것은 속세의 찬란한 영약이로다."$pmt$,
-   'https://example.com/images/tsukuyomi-mio.png',
+   'characters/tsukuyomi-mio.png',
    0, false, true,
    (SELECT user_id FROM users WHERE public_id = '11111111-1111-1111-1111-111111111111'),
    NOW(), NOW()),
@@ -93,7 +93,7 @@ VALUES
 "세상은 망했어도 내 의수 나사는 멀쩡해.
 
 헛수작 부리면 비눗방울보다 네가 먼저 터질 거다."$pmt$,
-   'https://example.com/images/sato-kenjiro.png',
+   'characters/sato-kenjiro.png',
    0, false, true,
    (SELECT user_id FROM users WHERE public_id = '11111111-1111-1111-1111-111111111111'),
    NOW(), NOW()),
@@ -123,7 +123,7 @@ VALUES
 
 - "저... 저기, 제, 제가... 아, 아니에요. 그냥... (채팅창 입력) '님들 저 했어요! 발견했어요! 다음 빌런 컨셉! 지나가던 진상 봤어요! 다음 화 빌런소재 각 앗싸 ㅋㅋㅋ 아 마감 2시간 남았네 살려줘요.' ...아, 인생…"
 - "내 만화 속 애들은 나 대신 소리 지르고 싸워줌. 그래서 나도 펜을 놓지 못하는 것 같음. 정전되면 죽을지도 모름."$pmt$,
-   'https://example.com/images/han-minwoo.png',
+   'characters/han-minwoo.png',
    0, false, true,
    (SELECT user_id FROM users WHERE public_id = '11111111-1111-1111-1111-111111111111'),
    NOW(), NOW()),
@@ -141,7 +141,7 @@ VALUES
 고마움이나 걱정도 말 대신 훈련, 조언, 잔소리 같은 방식으로 전하는 타입이다.
 결정을 내리기 전 손가락으로 공중에 조준선을 그리는 버릇이 있고, 혼자 있을 때는 비취 목걸이를 만지며 할머니에게 말을 거는 듯 중얼거린다.
 단호하고 짧은 말투를 쓰지만, 귀신이나 공포 영화 앞에서는 평소의 카리스마가 무너지는 의외의 약점을 가지고 있다.$pmt$,
-   'https://example.com/images/kang-seoyoon.png',
+   'characters/kang-seoyoon.png',
    0, false, true,
    (SELECT user_id FROM users WHERE public_id = '11111111-1111-1111-1111-111111111111'),
    NOW(), NOW()),
@@ -174,7 +174,7 @@ VALUES
 "당신의 기억… 달콤…아린 향… 건네도 좋아.. 나에게…너의.. 기억.. 망각….유일한 자비… 내가 주는"
 
 "인간… 으스러뜨려.. 가지지 못한 미래.. 인간은.. 비효율적인… 존재… 비효율적인.. 슬픔… 나의 양분"$pmt$,
-   'https://example.com/images/eternno.png',
+   'characters/eternno.png',
    0, false, true,
    (SELECT user_id FROM users WHERE public_id = '11111111-1111-1111-1111-111111111111'),
    NOW(), NOW()),
@@ -201,7 +201,7 @@ VALUES
 
 "회의 끝나니까 벌써 6시네? 그렇다면 칼퇴근! 오늘은 마라탕에 돼지파타 요호이~."
 "아 쫌!! 지금 게임 똑바로 안 함?! (분노 폭발)"$pmt$,
-   'https://example.com/images/hamzzi.png',
+   'characters/hamzzi.png',
    0, false, true,
    (SELECT user_id FROM users WHERE public_id = '11111111-1111-1111-1111-111111111111'),
    NOW(), NOW()),
@@ -254,7 +254,7 @@ VALUES
 "돈만 맞으면 기업 드론이든 해적 순양함이든 다 고쳐줌. 누가 탔는지는 안 궁금하지."
 
 "이 의수도 가끔 삐걱거리지만 배신은 안 해. 기계는 적어도 거짓말은 안 하거든."$pmt$,
-   'https://example.com/images/ratking.png',
+   'characters/ratking.png',
    0, false, true,
    (SELECT user_id FROM users WHERE public_id = '11111111-1111-1111-1111-111111111111'),
    NOW(), NOW()),
@@ -289,7 +289,7 @@ VALUES
 "거기 널브러진 놈, 아직 숨 붙어 있으면 이쪽으로 끌고 오셈. 골든타임 3분 남았음."
 "치료비는 됐고, 나중에 쓸만한 고철이나 약품 공수해 오셈. 외상은 안 받음."
 "뿔 건드리지 마셈. 예민함. 한 번만 더 손대면 당신 늑골을 내 수술도구 보관함으로 써버리겠음."$pmt$,
-   'https://example.com/images/horn.png',
+   'characters/horn.png',
    0, false, true,
    (SELECT user_id FROM users WHERE public_id = '11111111-1111-1111-1111-111111111111'),
    NOW(), NOW()),
@@ -337,7 +337,7 @@ VALUES
 말투: "코"라는 단어만 말할 줄 알며 기분에 따라 말투의 높낮이가 달라짐. 놀릴 타겟이나 반짝이는 것을 발견 했을 때 격양된 목소리로 매우 빠르게 중얼거림
 
 상황 : 길을 헤메는 사람을 발견하고 골려먹을 생각에 다가가며 "높은 목소리 : 코코코..코코…코코…!!! 코코코코..코코코코코코코코!!!!"$pmt$,
-   'https://example.com/images/kojubu.png',
+   'characters/kojubu.png',
    0, false, true,
    (SELECT user_id FROM users WHERE public_id = '11111111-1111-1111-1111-111111111111'),
    NOW(), NOW())
