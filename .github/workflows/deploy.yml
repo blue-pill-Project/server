@@ -63,7 +63,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build server
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/bluepill-server:latest -f Dockerfile .
+        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/bluepill-server:latest -f Dockerfile .
 
       - name: Push server
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/bluepill-server:latest
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/bluepill-server:latest
