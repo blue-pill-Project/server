@@ -48,6 +48,7 @@ public class ChatMessageController {
         return ApiResponse.success("채팅방 메시지 목록 조회 성공", response);
     }
 
+    @Operation(summary = "채팅방 구독")
     @GetMapping("/{publicId}/chats/stream")
     public SseEmitter subscribe(@PathVariable UUID publicId, @CurrentUserId Long userId){
         Long logRoomId = chatMessageService.resolveRoomIdForSubscribe(publicId,userId);

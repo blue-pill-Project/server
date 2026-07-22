@@ -61,7 +61,8 @@ public class ChatMessageService {
         return new ChatMessageResponse(
                 message.getContent(),
                 true,
-                message.getCreatedAt()
+                message.getCreatedAt(),
+                quotedPhoto != null ? quotedPhoto.getImageUrl() : null
         );
     }
 
@@ -87,7 +88,8 @@ public class ChatMessageService {
                 .map(m -> new ChatMessageItem(
                         m.getContent(),
                         m.getSender().getId().equals(member.getId()),
-                        m.getCreatedAt()
+                        m.getCreatedAt(),
+                        m.getLogPhoto() != null ? m.getLogPhoto().getImageUrl() : null
                 ))
                 .toList();
 

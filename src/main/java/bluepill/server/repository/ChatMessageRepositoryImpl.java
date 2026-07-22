@@ -20,6 +20,7 @@ public class ChatMessageRepositoryImpl implements ChatMessageRepositoryCustom {
         return queryFactory
                 .selectFrom(cm)
                 .join(cm.sender).fetchJoin()
+                .leftJoin(cm.logPhoto).fetchJoin()
                 .where(
                         cm.logRoom.id.eq(logRoomId),
                         cursorCondition(cm, cursorId)
