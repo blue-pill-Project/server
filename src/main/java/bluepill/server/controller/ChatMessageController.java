@@ -5,7 +5,7 @@ import bluepill.server.dto.chat.ChatMessageListResponse;
 import bluepill.server.dto.chat.ChatMessageRequest;
 import bluepill.server.dto.chat.ChatMessageResponse;
 import bluepill.server.dto.common.ApiResponse;
-import bluepill.server.repository.ChatSseEmitterRepository;
+import bluepill.server.repository.chat.ChatSseEmitterRepository;
 import bluepill.server.service.ChatMessageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

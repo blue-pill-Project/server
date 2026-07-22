@@ -1,4 +1,4 @@
-package bluepill.server.repository;
+package bluepill.server.repository.logroom;
 
 import bluepill.server.domain.LogRoomMember;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,6 +17,8 @@ public interface LogRoomMemberRepository extends JpaRepository<LogRoomMember, Lo
     Optional<LogRoomMember> findByLogRoom_IdAndUser_UserId(Long logRoomId, Long userId);
 
     Optional<LogRoomMember> findByLogRoom_IdAndSnapshotIsNotNull(Long logRoomId);
+
+    long countByUser_UserId(Long userId);
 
     // 활성 캐릭터 멤버(스냅샷 있는) 전체 : daily-log 스케줄러가 순회할 대상
     @Query("""

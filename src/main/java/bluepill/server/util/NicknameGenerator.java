@@ -1,6 +1,6 @@
 package bluepill.server.util;
 
-import bluepill.server.repository.UserRepository;
+import bluepill.server.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

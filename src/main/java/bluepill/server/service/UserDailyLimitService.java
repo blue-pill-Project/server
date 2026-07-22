@@ -4,7 +4,7 @@ import bluepill.server.domain.User;
 import bluepill.server.domain.UserDailyLimit;
 import bluepill.server.exception.BusinessException;
 import bluepill.server.exception.ErrorCode;
-import bluepill.server.repository.UserDailyLimitRepository;
+import bluepill.server.repository.user.UserDailyLimitRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

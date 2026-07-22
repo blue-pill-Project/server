@@ -1,4 +1,4 @@
-package bluepill.server.repository;
+package bluepill.server.repository.chat;
 
 import bluepill.server.domain.ChatMessage;
 

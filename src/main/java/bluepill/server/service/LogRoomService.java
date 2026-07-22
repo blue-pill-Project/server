@@ -20,16 +20,16 @@ import bluepill.server.dto.logroom.LogRoomListResponse;
 import bluepill.server.dto.logroom.LogRoomParticipant;
 import bluepill.server.exception.BusinessException;
 import bluepill.server.exception.ErrorCode;
-import bluepill.server.repository.CharacterCardRepository;
-import bluepill.server.repository.CharacterPhotoRow;
-import bluepill.server.repository.CharacterSnapshotRepository;
-import bluepill.server.repository.DayLogRow;
-import bluepill.server.repository.LogPhotoRepository;
-import bluepill.server.repository.LogRoomMemberRepository;
-import bluepill.server.repository.LogRoomPageRow;
-import bluepill.server.repository.LogRoomRelationshipRepository;
-import bluepill.server.repository.LogRoomRepository;
-import bluepill.server.repository.MemberImageRow;
+import bluepill.server.repository.character.CharacterCardRepository;
+import bluepill.server.repository.logroom.CharacterPhotoRow;
+import bluepill.server.repository.character.CharacterSnapshotRepository;
+import bluepill.server.repository.logroom.DayLogRow;
+import bluepill.server.repository.logroom.LogPhotoRepository;
+import bluepill.server.repository.logroom.LogRoomMemberRepository;
+import bluepill.server.repository.logroom.LogRoomPageRow;
+import bluepill.server.repository.logroom.LogRoomRelationshipRepository;
+import bluepill.server.repository.logroom.LogRoomRepository;
+import bluepill.server.repository.logroom.MemberImageRow;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -139,7 +139,9 @@ public class LogRoomService {
                 ? content.get(content.size() - 1).getPublicId()
                 : null;
 
-        return new LogRoomListResponse(content, nextCursor, hasNext);
+        long total = logRoomMemberRepository.countByUser_UserId(viewerId);
+
+        return new LogRoomListResponse(content, nextCursor, hasNext, total);
     }
 
     @Transactional

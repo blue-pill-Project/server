@@ -1,4 +1,4 @@
-package bluepill.server.repository;
+package bluepill.server.repository.post;
 
 import bluepill.server.domain.*;
 import com.querydsl.core.types.Projections;

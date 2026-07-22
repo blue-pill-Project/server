@@ -1,4 +1,4 @@
-package bluepill.server.repository;
+package bluepill.server.repository.logroom;
 
 import bluepill.server.domain.LogRoom;
 import org.springframework.data.jpa.repository.JpaRepository;

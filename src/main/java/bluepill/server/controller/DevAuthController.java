@@ -6,7 +6,7 @@ import bluepill.server.dto.user.TokenResponse;
 import bluepill.server.exception.BusinessException;
 import bluepill.server.exception.ErrorCode;
 import bluepill.server.jwt.JwtProvider;
-import bluepill.server.repository.UserRepository;
+import bluepill.server.repository.user.UserRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
