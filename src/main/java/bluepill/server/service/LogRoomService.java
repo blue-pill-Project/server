@@ -32,9 +32,12 @@ import bluepill.server.repository.logroom.LogRoomRepository;
 import bluepill.server.repository.logroom.MemberImageRow;
 import bluepill.server.util.ImageUrlBuilder;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.time.DateTimeException;
 import java.time.LocalDate;
@@ -49,6 +52,7 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -62,6 +66,7 @@ public class LogRoomService {
     private final CharacterSnapshotRepository characterSnapshotRepository;
     private final UserService userService;
     private final ImageUrlBuilder imageUrlBuilder;
+    private final ImageStorageService imageStorageService;
 
     public LogRoomListResponse getMyLogRooms(Long viewerId, UUID cursor, int size) {
         // 쿼리1: 방 페이지(+방장)
@@ -421,7 +426,19 @@ public class LogRoomService {
         }
 
         // DB 삭제
-        // TODO: S3 인프라 작업 시 S3 객체 삭제 추가 (트랜잭션 커밋 후)
+        String imageKey = photo.getImageUrl();
         logPhotoRepository.delete(photo);
+
+        // 트랜잭션 커밋 후 R2 객체 삭제 (커밋 실패 시 객체는 보존)
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                    @Override
+                    public void afterCommit() {
+                        try {
+                            imageStorageService.deleteImage(imageKey);
+                        } catch (Exception e) {
+                            log.warn("R2 객체 삭제 실패(고아 객체 남음): key={}", imageKey, e);
+                        }
+            }
+        });
     }
 }
