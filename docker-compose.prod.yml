@@ -1,0 +1,49 @@
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: bluepill-db
+    restart: always
+    environment:
+      POSTGRES_DB: bluepill
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+
+  server:
+    image: ${SERVER_IMAGE}
+    container_name: bluepill-server
+    restart: always
+    depends_on:
+      - db
+    env_file:
+      - .env
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_URL: db
+    expose:
+      - "8080"
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+  client:
+    image: ${CLIENT_IMAGE}
+    container_name: bluepill-client
+    restart: always
+    depends_on:
+      - server
+    ports:
+      - "80:80"
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+  watchtower:
+    image: containrrr/watchtower
+    container_name: watchtower
+    restart: always
+    command: --label-enable --interval 30 --cleanup
+    environment:
+      DOCKER_CONFIG: /config
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ~/.docker/config.json:/config/config.json:ro
