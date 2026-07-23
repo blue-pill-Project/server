@@ -17,12 +17,12 @@ public class CharacterCardCreateResponse {
     private String imageUrl;
     private Instant createdAt;
 
-    public static CharacterCardCreateResponse from(CharacterCard card) {
+    public static CharacterCardCreateResponse from(CharacterCard card, String imageUrl) {
         return new CharacterCardCreateResponse(
                 card.getPublicId(),
                 card.getName(),
                 card.getDescription(),
-                card.getImageUrl(),
+                imageUrl,
                 card.getCreatedAt()
         );
     }
