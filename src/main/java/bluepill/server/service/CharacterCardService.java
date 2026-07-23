@@ -15,6 +15,7 @@ import bluepill.server.exception.BusinessException;
 import bluepill.server.exception.ErrorCode;
 import bluepill.server.repository.character.CharacterCardRepository;
 import bluepill.server.repository.character.CharacterSnapshotRepository;
+import bluepill.server.util.ImageUrlBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -37,13 +38,12 @@ public class CharacterCardService {
     private final UserService userService;
     private final CharacterSnapshotRepository characterSnapshotRepository;
     private final ImageStorageService imageStorageService;
+    private final ImageUrlBuilder imageUrlBuilder;
 
     @Transactional
     public CharacterCard createCharacterCard(CharacterCardCreateRequest request, User creator) {
         // 일일 제한 체크 + 카운트 증가
         userDailyLimitService.increaseCharacterCreateCount(creator);
-
-        // TODO(선택): imageUrl key 유효성 검증 (존재/소유 확인, INVALID_IMAGE_KEY)
 
         CharacterCard card = CharacterCard.builder()
                 .publicId(UUID.randomUUID())
@@ -83,8 +83,6 @@ public class CharacterCardService {
 
     @Transactional
     public void updateCharacterCard(UUID publicId, Long userId, CharacterCardUpdateRequest request) {
-        // TODO(선택): imageUrl key 유효성 검증
-
         CharacterCard card = characterCardRepository.findByPublicIdAndIsDeletedFalse(publicId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.CHARACTER_CARD_NOT_FOUND));
 
@@ -157,6 +155,8 @@ public class CharacterCardService {
 
         long total = characterCardRepository.countLibrary(viewerId, keyword);
 
+        result.forEach(i -> i.setImageUrl(imageUrlBuilder.buildUrl(i.getImageUrl())));
+
         return new CharacterCardListResponse(result, nextCursor, hasNext, total);
     }
 
@@ -172,14 +172,16 @@ public class CharacterCardService {
             throw new BusinessException(ErrorCode.CHARACTER_CARD_PRIVATE);
         }
 
+        String imageUrl = imageUrlBuilder.buildUrl(card.getImageUrl());
+
         if (isOwner) {
             List<String> exampleDialogueContents = card.getExampleDialogues().stream()
                     .map(ExampleDialogue::getContent)
                     .toList();
-            return CharacterCardDetailResponse.forOwner(card, exampleDialogueContents);
+            return CharacterCardDetailResponse.forOwner(card, exampleDialogueContents, imageUrl);
         }
 
-        return CharacterCardDetailResponse.forViewer(card);
+        return CharacterCardDetailResponse.forViewer(card, imageUrl);
     }
 
     public UserCharacterCardListResponse getUserCharacterCards(
@@ -204,6 +206,8 @@ public class CharacterCardService {
         long total = isOwner
                 ? characterCardRepository.countByCreatorAndIsDeletedFalse(target)
                 : characterCardRepository.countByCreatorAndIsDeletedFalseAndIsPublicTrue(target);
+
+        result.forEach(i -> i.setImageUrl(imageUrlBuilder.buildUrl(i.getImageUrl())));
 
         return new UserCharacterCardListResponse(result, nextCursor, hasNext, total);
     }

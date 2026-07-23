@@ -33,14 +33,14 @@ public class CharacterCardDetailResponse {
     private Instant updatedAt;
 
     //본인 카드
-    public static CharacterCardDetailResponse forOwner(CharacterCard card, List<String> exampleDialogueContents) {
+    public static CharacterCardDetailResponse forOwner(CharacterCard card, List<String> exampleDialogueContents, String imageUrl) {
         return new CharacterCardDetailResponse(
                 card.getPublicId(),
                 card.getName(),
                 card.getCode(),
                 card.getVersion(),
                 card.getDescription(),
-                card.getImageUrl(),
+                imageUrl,
                 card.getCreator().getPublicId(),
                 card.getCreator().getNickname(),
                 card.getPrompt(),
@@ -53,14 +53,14 @@ public class CharacterCardDetailResponse {
     }
 
     //다른 사람 카드
-    public static CharacterCardDetailResponse forViewer(CharacterCard card) {
+    public static CharacterCardDetailResponse forViewer(CharacterCard card, String imageUrl) {
         return new CharacterCardDetailResponse(
                 card.getPublicId(),
                 card.getName(),
                 card.getCode(),
                 card.getVersion(),
                 card.getDescription(),
-                card.getImageUrl(),
+                imageUrl,
                 card.getCreator().getPublicId(),
                 card.getCreator().getNickname(),
                 null,    // prompt

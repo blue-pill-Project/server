@@ -13,6 +13,7 @@ import bluepill.server.dto.character.CharacterSortType;
 import bluepill.server.dto.common.ApiResponse;
 import bluepill.server.service.CharacterCardService;
 import bluepill.server.service.UserService;
+import bluepill.server.util.ImageUrlBuilder;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -39,6 +40,7 @@ public class CharacterCardController {
 
     private final CharacterCardService characterCardService;
     private final UserService userService;
+    private final ImageUrlBuilder imageUrlBuilder;
 
     @Operation(summary = "캐릭터 카드 생성")
     @PostMapping
@@ -49,7 +51,8 @@ public class CharacterCardController {
         User creator = userService.findById(userId);
 
         CharacterCard card = characterCardService.createCharacterCard(request, creator);
-        CharacterCardCreateResponse response = CharacterCardCreateResponse.from(card);
+        CharacterCardCreateResponse response =
+                CharacterCardCreateResponse.from(card, imageUrlBuilder.buildUrl(card.getImageUrl()));
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
