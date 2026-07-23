@@ -5,6 +5,8 @@ import bluepill.server.dto.image.ImageType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
@@ -18,6 +20,7 @@ import java.util.UUID;
 public class ImageStorageService {
 
     private  final S3Presigner s3Presigner;
+    private final S3Client s3Client;
 
     @Value("${cloudflare.r2.bucket-name}")
     private String bucketName;
@@ -48,4 +51,13 @@ public class ImageStorageService {
                 key
         );
     };
+
+    // R2 객체 삭제 (key 가 비어있으면 무시)
+    public void deleteImage(String key) {
+        if (key == null || key.isBlank()) return;
+        s3Client.deleteObject(DeleteObjectRequest.builder()
+                .bucket(bucketName)
+                .key(key)
+                .build());
+    }
 }
