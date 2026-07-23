@@ -20,13 +20,13 @@ public class LogPhotoUploadResponse {
     private String caption;
     private Instant createdAt;
 
-    public static LogPhotoUploadResponse from(LogPhoto photo) {
+    public static LogPhotoUploadResponse from(LogPhoto photo, String imageUrl) {
         return new LogPhotoUploadResponse(
                 photo.getPublicId(),
                 photo.getMember().getPublicId(),
                 photo.getPostDate(),
                 photo.getTimeSlot(),
-                photo.getImageUrl(),
+                imageUrl,
                 photo.getCaption(),
                 photo.getCreatedAt()
         );

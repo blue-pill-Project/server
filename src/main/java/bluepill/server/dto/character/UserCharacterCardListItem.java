@@ -2,6 +2,7 @@ package bluepill.server.dto.character;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -14,6 +15,7 @@ public class UserCharacterCardListItem {
     private String name;
     private Long characterCode;
     private String description;
+    @Setter
     private String imageUrl;
     private Long useCount;
     private Instant createdAt;

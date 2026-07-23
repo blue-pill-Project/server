@@ -14,14 +14,20 @@ import bluepill.server.dto.character.UserCharacterCardListResponse;
 import bluepill.server.exception.BusinessException;
 import bluepill.server.exception.ErrorCode;
 import bluepill.server.repository.character.CharacterCardRepository;
+import bluepill.server.repository.character.CharacterSnapshotRepository;
+import bluepill.server.util.ImageUrlBuilder;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -30,17 +36,14 @@ public class CharacterCardService {
     private final CharacterCardRepository characterCardRepository;
     private final UserDailyLimitService userDailyLimitService;
     private final UserService userService;
+    private final CharacterSnapshotRepository characterSnapshotRepository;
+    private final ImageStorageService imageStorageService;
+    private final ImageUrlBuilder imageUrlBuilder;
 
     @Transactional
     public CharacterCard createCharacterCard(CharacterCardCreateRequest request, User creator) {
         // 일일 제한 체크 + 카운트 증가
         userDailyLimitService.increaseCharacterCreateCount(creator);
-
-        // TODO: imageUrl(S3 temp key) 유효성 검증 (INVALID_IMAGE_KEY)
-        // TODO: temp/ → characters/ 이동
-        //  @Transactional은 S3 작업을 롤백 못 함.
-        //  @TransactionalEventListener(AFTER_COMMIT)로 트랜잭션 커밋 후 S3 이동 +
-        //  별도 트랜잭션으로 imageUrl 업데이트.
 
         CharacterCard card = CharacterCard.builder()
                 .publicId(UUID.randomUUID())
@@ -80,15 +83,14 @@ public class CharacterCardService {
 
     @Transactional
     public void updateCharacterCard(UUID publicId, Long userId, CharacterCardUpdateRequest request) {
-        // TODO: imageUrl(S3 temp key) 유효성 검증 (INVALID_IMAGE_KEY)
-        // TODO: 새 imageUrl이 들어오면 temp/ → characters/ 이동, 기존 이미지 정리
-
         CharacterCard card = characterCardRepository.findByPublicIdAndIsDeletedFalse(publicId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.CHARACTER_CARD_NOT_FOUND));
 
         if (!card.getCreator().getUserId().equals(userId)) {
             throw new BusinessException(ErrorCode.CHARACTER_CARD_UPDATE_FORBIDDEN);
         }
+
+        String oldImageKey = card.getImageUrl();
 
         card.update(
                 request.getName(),
@@ -104,6 +106,24 @@ public class CharacterCardService {
 
         if (request.hasContentChanges()) {
             card.incrementVersion();
+        }
+
+        // 이미지가 바뀌었으면, 옛 이미지를 참조하는 스냅샷이 없을 때만 R2에서 삭제 (커밋 후)
+        String newImageKey = request.getImageUrl();
+        if (oldImageKey != null && !oldImageKey.equals(newImageKey)) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    if (characterSnapshotRepository.existsByImageUrl(oldImageKey)) {
+                        return;  // 스냅샷이 아직 참조 중이면 삭제하면 안 됨
+                    }
+                    try {
+                        imageStorageService.deleteImage(oldImageKey);
+                    } catch (Exception e) {
+                        log.warn("옛 캐릭터 이미지 R2 삭제 실패(고아 남음): key={}", oldImageKey, e);
+                    }
+                }
+            });
         }
     }
 
@@ -135,6 +155,8 @@ public class CharacterCardService {
 
         long total = characterCardRepository.countLibrary(viewerId, keyword);
 
+        result.forEach(i -> i.setImageUrl(imageUrlBuilder.buildUrl(i.getImageUrl())));
+
         return new CharacterCardListResponse(result, nextCursor, hasNext, total);
     }
 
@@ -150,14 +172,16 @@ public class CharacterCardService {
             throw new BusinessException(ErrorCode.CHARACTER_CARD_PRIVATE);
         }
 
+        String imageUrl = imageUrlBuilder.buildUrl(card.getImageUrl());
+
         if (isOwner) {
             List<String> exampleDialogueContents = card.getExampleDialogues().stream()
                     .map(ExampleDialogue::getContent)
                     .toList();
-            return CharacterCardDetailResponse.forOwner(card, exampleDialogueContents);
+            return CharacterCardDetailResponse.forOwner(card, exampleDialogueContents, imageUrl);
         }
 
-        return CharacterCardDetailResponse.forViewer(card);
+        return CharacterCardDetailResponse.forViewer(card, imageUrl);
     }
 
     public UserCharacterCardListResponse getUserCharacterCards(
@@ -182,6 +206,8 @@ public class CharacterCardService {
         long total = isOwner
                 ? characterCardRepository.countByCreatorAndIsDeletedFalse(target)
                 : characterCardRepository.countByCreatorAndIsDeletedFalseAndIsPublicTrue(target);
+
+        result.forEach(i -> i.setImageUrl(imageUrlBuilder.buildUrl(i.getImageUrl())));
 
         return new UserCharacterCardListResponse(result, nextCursor, hasNext, total);
     }
