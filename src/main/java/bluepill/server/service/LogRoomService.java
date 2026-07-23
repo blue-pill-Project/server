@@ -395,7 +395,7 @@ public class LogRoomService {
             throw new BusinessException(ErrorCode.PHOTO_ALREADY_UPLOADED);
         }
 
-        return LogPhotoUploadResponse.from(photo);
+        return LogPhotoUploadResponse.from(photo, imageUrlBuilder.buildUrl(photo.getImageUrl()));
     }
 
     @Transactional
