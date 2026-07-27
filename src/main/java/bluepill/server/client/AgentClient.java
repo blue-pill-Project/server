@@ -1,11 +1,13 @@
 package bluepill.server.client;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 import java.time.Duration;
+import java.util.List;
 
 /**
  * daily-logs-agent (FastAPI) 를 HTTP로 호출하는 클라이언트.
@@ -31,7 +33,7 @@ public class AgentClient {
 
     public AgentDailyLogResponse generateDailyLog(AgentDailyLogRequest req) {
         return restClient.post()
-                .uri("/daily-log")
+                .uri("/daily-logs/run")
                 .body(req)
                 .retrieve()
                 .body(AgentDailyLogResponse.class);
@@ -39,15 +41,13 @@ public class AgentClient {
 
     public record AgentDailyLogRequest(
             String timeslot,
-            Long logRoomId,
-            Long userId,
-            Long logRoomMemberId
+            @JsonProperty("user_id") String userId,
+            @JsonProperty("log_room_id") String logRoomId,
+            @JsonProperty("log_room_member_id") String logRoomMemberId,
+            @JsonProperty("previous_plans") List<Object> previousPlans
     ) {}
 
     public record AgentDailyLogResponse(
-            String timeslot,
-            String title,
-            String log_text,
-            String log_image_url
+            boolean success
     ) {}
 }
