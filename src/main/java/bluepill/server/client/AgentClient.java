@@ -1,5 +1,6 @@
 package bluepill.server.client;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
@@ -31,23 +32,49 @@ public class AgentClient {
 
     public AgentDailyLogResponse generateDailyLog(AgentDailyLogRequest req) {
         return restClient.post()
-                .uri("/daily-log")
+                .uri("/daily-logs/run")
                 .body(req)
                 .retrieve()
                 .body(AgentDailyLogResponse.class);
     }
 
+    public AgentTrendResponse generateTrend() {
+        return restClient.post()
+                .uri("/trend/run")
+                .retrieve()
+                .body(AgentTrendResponse.class);
+    }
+
+    public AgentWeeklyPlanResponse generateWeeklyPlan(AgentWeeklyPlanRequest req) {
+        return restClient.post()
+                .uri("/weekly-plan/run")
+                .body(req)
+                .retrieve()
+                .body(AgentWeeklyPlanResponse.class);
+    }
+
     public record AgentDailyLogRequest(
             String timeslot,
-            Long logRoomId,
-            Long userId,
-            Long logRoomMemberId
+            @JsonProperty("user_id") String userId,
+            @JsonProperty("log_room_id") String logRoomId,
+            @JsonProperty("log_room_member_id") String logRoomMemberId
     ) {}
 
     public record AgentDailyLogResponse(
-            String timeslot,
-            String title,
-            String log_text,
-            String log_image_url
+            boolean success
+    ) {}
+
+    public record AgentTrendResponse(
+            boolean success
+    ) {}
+
+    public record AgentWeeklyPlanRequest(
+            @JsonProperty("user_id") String userId,
+            @JsonProperty("log_room_id") String logRoomId,
+            @JsonProperty("log_room_member_id") String logRoomMemberId
+    ) {}
+
+    public record AgentWeeklyPlanResponse(
+            boolean success
     ) {}
 }

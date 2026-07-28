@@ -31,12 +31,19 @@ public class DailyLogScheduler {
         for (var t : targets) {
             try {
                 var res = agentClient.generateDailyLog(new AgentDailyLogRequest(
-                        timeslot, t.getLogRoomId(), t.getUserId(), t.getMemberId()));
-                log.info("daily-log 생성: member={}, timeslot={}, title={}",
-                        t.getMemberId(), timeslot, res.title());
+                        timeslot,
+                        String.valueOf(t.getUserId()),
+                        String.valueOf(t.getLogRoomId()),
+                        String.valueOf(t.getMemberId())));
+                if (res.success()) {
+                    log.info("daily-log 성공: member={}, timeslot={}", t.getMemberId(), timeslot);
+                } else {
+                    log.error("daily-log 저장 실패(success=false): member={}, timeslot={}",
+                            t.getMemberId(), timeslot);
+                }
             } catch (Exception e) {
-                // 한 멤버 실패해도 나머지는 계속
-                log.error("daily-log 실패: member={}", t.getMemberId(), e);
+                // 호출 자체 실패(500 등) — 한 멤버 실패해도 나머지는 계속
+                log.error("daily-log 호출 실패: member={}", t.getMemberId(), e);
             }
         }
     }
