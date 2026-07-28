@@ -46,6 +46,14 @@ public class AgentClient {
                 .body(AgentTrendResponse.class);
     }
 
+    public AgentWeeklyPlanResponse generateWeeklyPlan(AgentWeeklyPlanRequest req) {
+        return restClient.post()
+                .uri("/weekly-plan/run")
+                .body(req)
+                .retrieve()
+                .body(AgentWeeklyPlanResponse.class);
+    }
+
     public record AgentDailyLogRequest(
             String timeslot,
             @JsonProperty("user_id") String userId,
@@ -59,6 +67,16 @@ public class AgentClient {
     ) {}
 
     public record AgentTrendResponse(
+            boolean success
+    ) {}
+
+    public record AgentWeeklyPlanRequest(
+            @JsonProperty("user_id") String userId,
+            @JsonProperty("log_room_id") String logRoomId,
+            @JsonProperty("log_room_member_id") String logRoomMemberId
+    ) {}
+
+    public record AgentWeeklyPlanResponse(
             boolean success
     ) {}
 }
