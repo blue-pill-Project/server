@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalTime;
 import java.time.ZoneId;
-import java.util.List;
 
 @Slf4j
 @Component
@@ -35,8 +34,7 @@ public class DailyLogScheduler {
                         timeslot,
                         String.valueOf(t.getUserId()),
                         String.valueOf(t.getLogRoomId()),
-                        String.valueOf(t.getMemberId()),
-                        List.of()));   // TODO: previous_plans 미사용
+                        String.valueOf(t.getMemberId())));
                 if (res.success()) {
                     log.info("daily-log 성공: member={}, timeslot={}", t.getMemberId(), timeslot);
                 } else {

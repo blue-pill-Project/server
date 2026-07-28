@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 import java.time.Duration;
-import java.util.List;
 
 /**
  * daily-logs-agent (FastAPI) 를 HTTP로 호출하는 클라이언트.
@@ -58,8 +57,7 @@ public class AgentClient {
             String timeslot,
             @JsonProperty("user_id") String userId,
             @JsonProperty("log_room_id") String logRoomId,
-            @JsonProperty("log_room_member_id") String logRoomMemberId,
-            @JsonProperty("previous_plans") List<Object> previousPlans
+            @JsonProperty("log_room_member_id") String logRoomMemberId
     ) {}
 
     public record AgentDailyLogResponse(
