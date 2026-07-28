@@ -29,6 +29,7 @@ public class ChatAiReplyService {
     @Async("chatAiExecutor")
     @Transactional
     public void generateAndSaveReply(Long logRoomId, Long userId, String content){
+        if (true) return; //잠시 비활성화
         logRoomMemberRepository.findByLogRoom_IdAndSnapshotIsNotNull(logRoomId)
                 .ifPresent(characterMember -> {
                     LogRoom logRoom = logRoomRepository.findById(logRoomId).orElseThrow();
