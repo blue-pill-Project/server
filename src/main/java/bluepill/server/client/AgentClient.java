@@ -39,6 +39,13 @@ public class AgentClient {
                 .body(AgentDailyLogResponse.class);
     }
 
+    public AgentTrendResponse generateTrend() {
+        return restClient.post()
+                .uri("/trend/run")
+                .retrieve()
+                .body(AgentTrendResponse.class);
+    }
+
     public record AgentDailyLogRequest(
             String timeslot,
             @JsonProperty("user_id") String userId,
@@ -48,6 +55,10 @@ public class AgentClient {
     ) {}
 
     public record AgentDailyLogResponse(
+            boolean success
+    ) {}
+
+    public record AgentTrendResponse(
             boolean success
     ) {}
 }
