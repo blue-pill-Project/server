@@ -31,3 +31,6 @@ app:
   cookie:
     secure: ${COOKIE_SECURE:true}
     same-site: ${COOKIE_SAME_SITE:Lax}
+
+chat-agent:
+  url: ${AGENT_BASE_URL:http://localhost:8000}
