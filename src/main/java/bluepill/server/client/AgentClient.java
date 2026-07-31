@@ -53,6 +53,14 @@ public class AgentClient {
                 .body(AgentWeeklyPlanResponse.class);
     }
 
+    // 방 삭제 시 agent 쪽 데이터(daily_plans + LangGraph 기억) 정리 요청
+    public AgentLogRoomDeleteResponse deleteLogRoomData(Long logRoomId) {
+        return restClient.delete()
+                .uri("/log-rooms/{id}", logRoomId)
+                .retrieve()
+                .body(AgentLogRoomDeleteResponse.class);
+    }
+
     public record AgentDailyLogRequest(
             String timeslot,
             @JsonProperty("user_id") String userId,
@@ -75,6 +83,10 @@ public class AgentClient {
     ) {}
 
     public record AgentWeeklyPlanResponse(
+            boolean success
+    ) {}
+
+    public record AgentLogRoomDeleteResponse(
             boolean success
     ) {}
 }
