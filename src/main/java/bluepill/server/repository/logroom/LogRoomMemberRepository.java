@@ -2,7 +2,9 @@ package bluepill.server.repository.logroom;
 
 import bluepill.server.domain.LogRoomMember;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -29,6 +31,11 @@ public interface LogRoomMemberRepository extends JpaRepository<LogRoomMember, Lo
             WHERE m.snapshot IS NOT NULL
             """)
     List<DailyLogTarget> findActiveCharacterTargets();
+
+    // 방 삭제용: 방의 멤버 일괄 삭제
+    @Modifying
+    @Query("delete from LogRoomMember m where m.logRoom.id = :roomId")
+    void deleteByRoomId(@Param("roomId") Long roomId);
 
     // 조회 결과 projection
     interface DailyLogTarget {
