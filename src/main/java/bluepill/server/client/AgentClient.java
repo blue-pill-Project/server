@@ -61,6 +61,15 @@ public class AgentClient {
                 .body(AgentLogRoomDeleteResponse.class);
     }
 
+    // 캐릭터 프롬프트 자동완성
+    public AgentCharacterPromptResponse completeCharacterPrompt(AgentCharacterPromptRequest req) {
+        return restClient.post()
+                .uri("/character-prompt/complete")
+                .body(req)
+                .retrieve()
+                .body(AgentCharacterPromptResponse.class);
+    }
+
     public record AgentDailyLogRequest(
             String timeslot,
             @JsonProperty("user_id") String userId,
@@ -88,5 +97,15 @@ public class AgentClient {
 
     public record AgentLogRoomDeleteResponse(
             boolean success
+    ) {}
+
+    public record AgentCharacterPromptRequest(
+            String name,
+            String intro,
+            @JsonProperty("user_prompt") String userPrompt
+    ) {}
+
+    public record AgentCharacterPromptResponse(
+            String prompt
     ) {}
 }

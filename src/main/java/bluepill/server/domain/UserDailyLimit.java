@@ -24,13 +24,21 @@ public class UserDailyLimit extends BaseTimeEntity {
     @Column(name = "character_create_count", nullable = false)
     private Integer characterCreateCount;
 
+    @Column(name = "prompt_auto_complete_count", nullable = false, columnDefinition = "integer default 0")
+    private Integer promptAutoCompleteCount;
+
     @Builder
     public UserDailyLimit(User user) {
         this.user = user;
         this.characterCreateCount = 0;
+        this.promptAutoCompleteCount = 0;
     }
 
     public void increaseCharacterCreateCount() {
         this.characterCreateCount++;
+    }
+
+    public void increasePromptAutoCompleteCount() {
+        this.promptAutoCompleteCount++;
     }
 }

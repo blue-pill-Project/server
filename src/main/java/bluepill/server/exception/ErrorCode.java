@@ -55,6 +55,7 @@ public enum ErrorCode {
 
     // 429 Too Many Requests
     CHARACTER_CREATE_LIMIT_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "일일 캐릭터 생성 횟수를 초과했습니다. 내일 다시 시도해주세요. (하루 30회 제한)"),
+    CHARACTER_PROMPT_LIMIT_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "일일 캐릭터 프롬프트 자동완성 횟수를 초과했습니다. 내일 다시 시도해주세요. (하루 5회 제한)"),
 
     // 500 Server Error
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 내부 에러가 발생했습니다."),
