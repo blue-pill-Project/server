@@ -9,9 +9,12 @@ import bluepill.server.dto.character.CharacterCardDetailResponse;
 import bluepill.server.dto.character.CharacterCardListResponse;
 import bluepill.server.dto.character.CharacterCardUpdateRequest;
 import bluepill.server.dto.character.CharacterCardVisibilityRequest;
+import bluepill.server.dto.character.CharacterPromptAutoCompleteRequest;
+import bluepill.server.dto.character.CharacterPromptAutoCompleteResponse;
 import bluepill.server.dto.character.CharacterSortType;
 import bluepill.server.dto.common.ApiResponse;
 import bluepill.server.service.CharacterCardService;
+import bluepill.server.service.CharacterPromptService;
 import bluepill.server.service.UserService;
 import bluepill.server.util.ImageUrlBuilder;
 import io.swagger.v3.oas.annotations.Operation;
@@ -39,6 +42,7 @@ import java.util.UUID;
 public class CharacterCardController {
 
     private final CharacterCardService characterCardService;
+    private final CharacterPromptService characterPromptService;
     private final UserService userService;
     private final ImageUrlBuilder imageUrlBuilder;
 
@@ -57,6 +61,20 @@ public class CharacterCardController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(ApiResponse.success("캐릭터 카드 생성 성공", response));
+    }
+
+    @Operation(summary = "캐릭터 프롬프트 자동완성")
+    @PostMapping("/prompt/autocomplete")
+    public ResponseEntity<ApiResponse<CharacterPromptAutoCompleteResponse>> autoCompletePrompt(
+            @CurrentUserId Long userId,
+            @RequestBody @Valid CharacterPromptAutoCompleteRequest request) {
+
+        String prompt = characterPromptService.autoComplete(userId, request);
+
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "캐릭터 프롬프트 자동완성 성공",
+                        new CharacterPromptAutoCompleteResponse(prompt)));
     }
 
     @Operation(summary = "라이브러리 캐릭터 목록 조회")
