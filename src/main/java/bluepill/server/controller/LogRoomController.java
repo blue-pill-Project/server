@@ -165,4 +165,16 @@ public class LogRoomController {
         return ResponseEntity.ok(
                 ApiResponse.success("사진이 삭제되었습니다."));
     }
+
+    @Operation(summary = "로그방 삭제")
+    @DeleteMapping("/{publicId}")
+    public ResponseEntity<ApiResponse<Void>> deleteLogRoom(
+            @CurrentUserId Long userId,
+            @PathVariable UUID publicId) {
+
+        logRoomService.deleteLogRoom(publicId, userId);
+
+        return ResponseEntity.ok(
+                ApiResponse.success("로그방이 삭제되었습니다."));
+    }
 }

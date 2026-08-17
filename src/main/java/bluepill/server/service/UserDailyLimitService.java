@@ -20,6 +20,7 @@ public class UserDailyLimitService {
 
     private static final ZoneId KST = ZoneId.of("Asia/Seoul");
     private static final int CHARACTER_CREATE_DAILY_LIMIT = 30;
+    private static final int PROMPT_AUTO_COMPLETE_DAILY_LIMIT = 5;
 
     private final UserDailyLimitRepository userDailyLimitRepository;
 
@@ -32,6 +33,17 @@ public class UserDailyLimitService {
         }
 
         limit.increaseCharacterCreateCount();
+    }
+
+    @Transactional
+    public void increasePromptAutoCompleteCount(User user) {
+        UserDailyLimit limit = findOrCreateTodayLimit(user);
+
+        if (limit.getPromptAutoCompleteCount() >= PROMPT_AUTO_COMPLETE_DAILY_LIMIT) {
+            throw new BusinessException(ErrorCode.CHARACTER_PROMPT_LIMIT_EXCEEDED);
+        }
+
+        limit.increasePromptAutoCompleteCount();
     }
 
     private UserDailyLimit findOrCreateTodayLimit(User user) {

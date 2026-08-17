@@ -1,5 +1,6 @@
 package bluepill.server.service;
 
+import bluepill.server.client.AgentClient;
 import bluepill.server.domain.CharacterCard;
 import bluepill.server.domain.CharacterSnapshot;
 import bluepill.server.domain.ExampleDialogue;
@@ -21,6 +22,7 @@ import bluepill.server.dto.logroom.LogRoomParticipant;
 import bluepill.server.exception.BusinessException;
 import bluepill.server.exception.ErrorCode;
 import bluepill.server.repository.character.CharacterCardRepository;
+import bluepill.server.repository.chat.ChatMessageRepository;
 import bluepill.server.repository.logroom.CharacterPhotoRow;
 import bluepill.server.repository.character.CharacterSnapshotRepository;
 import bluepill.server.repository.logroom.DayLogRow;
@@ -67,6 +69,8 @@ public class LogRoomService {
     private final UserService userService;
     private final ImageUrlBuilder imageUrlBuilder;
     private final ImageStorageService imageStorageService;
+    private final ChatMessageRepository chatMessageRepository;
+    private final AgentClient agentClient;
 
     public LogRoomListResponse getMyLogRooms(Long viewerId, UUID cursor, int size) {
         // 쿼리1: 방 페이지(+방장)
@@ -438,6 +442,49 @@ public class LogRoomService {
                         } catch (Exception e) {
                             log.warn("R2 객체 삭제 실패(고아 객체 남음): key={}", imageKey, e);
                         }
+            }
+        });
+    }
+
+    @Transactional
+    public void deleteLogRoom(UUID roomPublicId, Long userId) {
+        // 방 조회
+        LogRoom room = logRoomRepository.findByPublicId(roomPublicId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.LOG_ROOM_NOT_FOUND));
+
+        // 방장(생성자)만 삭제 가능
+        if (!room.getCreatedBy().getUserId().equals(userId)) {
+            throw new BusinessException(ErrorCode.LOG_ROOM_FORBIDDEN);
+        }
+        Long roomId = room.getId();
+
+        // R2 key 먼저 수집 (DB 삭제 전)
+        List<String> imageKeys = logPhotoRepository.findImageUrlsByRoomId(roomId);
+
+        // FK 안전 순서로 DB 삭제 (posts 는 log_rooms ON DELETE CASCADE 로 자동 삭제)
+        logRoomRelationshipRepository.deleteByRoomId(roomId);
+        chatMessageRepository.deleteByRoomId(roomId);
+        logPhotoRepository.deleteByRoomId(roomId);
+        logRoomMemberRepository.deleteByRoomId(roomId);
+        logRoomRepository.delete(room);
+
+        // 커밋 후 R2 객체 정리 (커밋 실패 시 객체 보존)
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                for (String key : imageKeys) {
+                    try {
+                        imageStorageService.deleteImage(key);
+                    } catch (Exception e) {
+                        log.warn("R2 객체 삭제 실패(고아 객체 남음): key={}", key, e);
+                    }
+                }
+                // agent 데이터(daily_plans + LangGraph 기억) 정리 (실패해도 방 삭제는 유지)
+                try {
+                    agentClient.deleteLogRoomData(roomId);
+                } catch (Exception e) {
+                    log.warn("agent 데이터 삭제 실패(고아 남음): roomId={}", roomId, e);
+                }
             }
         });
     }

@@ -53,6 +53,23 @@ public class AgentClient {
                 .body(AgentWeeklyPlanResponse.class);
     }
 
+    // 방 삭제 시 agent 쪽 데이터(daily_plans + LangGraph 기억) 정리 요청
+    public AgentLogRoomDeleteResponse deleteLogRoomData(Long logRoomId) {
+        return restClient.delete()
+                .uri("/log-rooms/{id}", logRoomId)
+                .retrieve()
+                .body(AgentLogRoomDeleteResponse.class);
+    }
+
+    // 캐릭터 프롬프트 자동완성
+    public AgentCharacterPromptResponse completeCharacterPrompt(AgentCharacterPromptRequest req) {
+        return restClient.post()
+                .uri("/character-prompt/complete")
+                .body(req)
+                .retrieve()
+                .body(AgentCharacterPromptResponse.class);
+    }
+
     public record AgentDailyLogRequest(
             String timeslot,
             @JsonProperty("user_id") String userId,
@@ -76,5 +93,19 @@ public class AgentClient {
 
     public record AgentWeeklyPlanResponse(
             boolean success
+    ) {}
+
+    public record AgentLogRoomDeleteResponse(
+            boolean success
+    ) {}
+
+    public record AgentCharacterPromptRequest(
+            String name,
+            String intro,
+            @JsonProperty("user_prompt") String userPrompt
+    ) {}
+
+    public record AgentCharacterPromptResponse(
+            String prompt
     ) {}
 }
