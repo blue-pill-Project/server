@@ -1,7 +1,6 @@
 package bluepill.server.service;
 
 import bluepill.server.client.ChatAgentClient;
-import bluepill.server.domain.CharacterSnapshot;
 import bluepill.server.domain.ChatMessage;
 import bluepill.server.domain.LogRoom;
 import bluepill.server.dto.chat.ChatMessageItem;
@@ -32,11 +31,10 @@ public class ChatAiReplyService {
         logRoomMemberRepository.findByLogRoom_IdAndSnapshotIsNotNull(logRoomId)
                 .ifPresent(characterMember -> {
                     LogRoom logRoom = logRoomRepository.findById(logRoomId).orElseThrow();
-                    CharacterSnapshot snapshot = characterMember.getSnapshot();
                     try {
                         String aiReply = chatAgentClient.generateReply(
                                 logRoomId.toString(),
-                                snapshot.getCharacterId().toString(),
+                                characterMember.getId().toString(),
                                 userId.toString(),
                                 content
                         );
