@@ -8,11 +8,12 @@ import bluepill.server.jwt.JwtConfig;
 import bluepill.server.jwt.JwtProvider;
 import bluepill.server.repository.user.UserRepository;
 import bluepill.server.repository.user.UserTokenRepository;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -33,6 +34,12 @@ public class OAuth2SuccessHandler  extends SimpleUrlAuthenticationSuccessHandler
 
     @Value("${app.frontend.oauth-callback-url}")
     private String oauthCallbackUrl;
+
+    @Value("${app.cookie.secure}")
+    private boolean secure;
+
+    @Value("${app.cookie.same-site}")
+    private String sameSite;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException{
@@ -61,18 +68,19 @@ public class OAuth2SuccessHandler  extends SimpleUrlAuthenticationSuccessHandler
                 .orElseGet(() -> UserToken.createToken(user, refreshToken, expiresAt));
         userTokenRepository.save(userToken);
 
-        response.addCookie(createRefreshTokenCookie(refreshToken));
+        response.addHeader(HttpHeaders.SET_COOKIE, createRefreshTokenCookie(refreshToken).toString());
 
         getRedirectStrategy().sendRedirect(request, response, oauthCallbackUrl);
     }
 
-    private Cookie createRefreshTokenCookie(String refreshToken) {
-        Cookie cookie = new Cookie("refreshToken", refreshToken);
-        cookie.setHttpOnly(true);
-        cookie.setSecure(false); // 로컬 개발에서는 false
-        cookie.setPath("/");
-        cookie.setMaxAge((int)jwtConfig.getRefreshTokenExpiration());
-        return cookie;
+    private ResponseCookie createRefreshTokenCookie(String refreshToken) {
+        return ResponseCookie.from("refreshToken", refreshToken)
+                .httpOnly(true)
+                .secure(secure)
+                .path("/")
+                .maxAge(jwtConfig.getRefreshTokenExpiration())
+                .sameSite(sameSite)
+                .build();
     }
 
     private String getProviderId(User.Provider provider, OAuth2User oAuth2User) {
