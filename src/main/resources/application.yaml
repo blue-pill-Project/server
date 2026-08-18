@@ -7,8 +7,14 @@ spring:
     virtual:
       enabled: true
   config:
-    import: 
+    import:
       - optional:application-secrets.yml
+
+# nginx 등 리버스 프록시가 붙인 X-Forwarded-* 헤더를 신뢰해서
+# {baseUrl} 등 요청 URL 계산 시 실제 스킴(https)/호스트를 쓰도록 함.
+# 없으면 OAuth2 redirect_uri가 내부 프록시 연결 기준(http)으로 잘못 계산됨.
+server:
+  forward-headers-strategy: framework
 
 jwt:
   access-token-expiration: ${JWT_ACCESS_TOKEN_EXPIRATION:3600}
