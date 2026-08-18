@@ -15,8 +15,8 @@ public class ChatAgentClient {
 
     private final RestClient chatAgentRestClient;
 
-    public String generateReply(String logRoomId, String characterId, String userId, String content){
-        ChatAgentRequest request = new ChatAgentRequest(logRoomId, characterId, userId, content);
+    public String generateReply(String logRoomId, String logRoomMemberId, String userId, String content){
+        ChatAgentRequest request = new ChatAgentRequest(logRoomId, logRoomMemberId, userId, content);
         ChatAgentResponse response = chatAgentRestClient.post()
                 .uri("/chat")
                 .contentType(MediaType.APPLICATION_JSON)

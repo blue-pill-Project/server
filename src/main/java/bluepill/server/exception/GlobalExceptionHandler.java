@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestCookieException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -24,6 +25,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(errorCode.getHttpStatus())
                 .body(ApiResponse.error(e.getErrorCode()));
+    }
+
+    // 로그인 안 한 상태에서 refreshToken 쿠키 없이 호출한 경우 (정상적인 비로그인 상태)
+    @ExceptionHandler(MissingRequestCookieException.class)
+    public ResponseEntity<ApiResponse<Void>> handleMissingRequestCookieException(MissingRequestCookieException e) {
+        return ResponseEntity
+                .status(ErrorCode.UNAUTHORIZED.getHttpStatus())
+                .body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
     }
 
     // 그 외 알 수 없는 에러 처리 (500)
