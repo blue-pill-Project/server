@@ -6,28 +6,6 @@ spring:
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
-  security:
-    oauth2:
-      client:
-        registration:
-          google:
-            client-id: ${GOOGLE_CLIENT_ID}
-            client-secret: ${GOOGLE_CLIENT_SECRET}
-          discord:
-            client-id: ${DISCORD_CLIENT_ID}
-            client-secret: ${DISCORD_CLIENT_SECRET}
-            client-name: Discord
-            authorization-grant-type: authorization_code
-            scope: identify,email
-            provider: discord
-            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
-        provider:
-          discord:
-            authorization-uri: https://discord.com/api/oauth2/authorize
-            token-uri: https://discord.com/api/oauth2/token
-            user-info-uri: https://discord.com/api/users/@me
-            user-name-attribute: id
-
   jpa:
     hibernate:
       ddl-auto: validate
@@ -52,7 +30,6 @@ app:
     oauth-callback-url: ${FRONTEND_OAUTH_CALLBACK_URL}
   cookie:
     secure: ${COOKIE_SECURE:true}
-    same-site: ${COOKIE_SAME_SITE:Lax}
 
-chat-agent:
-  url: ${AGENT_BASE_URL:http://localhost:8000}
+agent:
+  base-url: ${AGENT_BASE_URL:http://localhost:8000}

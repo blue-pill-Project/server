@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/bluepill
+    url: jdbc:postgresql://${DB_HOST:13.209.21.103}:5432/bluepill
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:password}
     driver-class-name: org.postgresql.Driver
@@ -20,12 +20,10 @@ spring:
 jwt:
   access-token-expiration: 86400
 
-app:
-  frontend:
-    oauth-callback-url: http://localhost:5173/auth/callback
-  cookie:
-    secure: false
-    same-site: Lax
+springdoc:
+  server:
+    - url: http://localhost:8080/api
+      description: 로컬 서버
 
-chat-agent:
-  url: http://localhost:8001
+agent:
+  base-url: http://localhost:8000
