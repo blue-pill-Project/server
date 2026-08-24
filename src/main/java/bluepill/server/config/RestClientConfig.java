@@ -10,7 +10,7 @@ import java.time.Duration;
 
 @Configuration
 public class RestClientConfig {
-    @Value("${chat-agent.url}")
+    @Value("${agent.base-url}")
     private String chatAgentUrl;
 
     @Bean

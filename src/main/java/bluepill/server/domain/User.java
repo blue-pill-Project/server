@@ -1,5 +1,7 @@
 package bluepill.server.domain;
 
+import bluepill.server.exception.BusinessException;
+import bluepill.server.exception.ErrorCode;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -81,5 +83,21 @@ public class User extends BaseTimeEntity {
 
     public void togglePublic() {
         this.isPublic = !this.isPublic;
+    }
+
+    public void softDelete(String reason) {
+        if (this.isDeleted) {
+            throw new BusinessException(ErrorCode.ALREADY_DELETED);
+        }
+
+        this.isDeleted = true;
+        this.deletedAt = Instant.now();
+        this.deletedReason = reason;
+
+        // 개인정보 파기
+        this.email = null;
+        this.imageUrl = null;
+        this.nickname = null;
+        this.providerId = "deleted_" + this.publicId;
     }
 }

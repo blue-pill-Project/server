@@ -1,6 +1,7 @@
 package bluepill.server.service;
 
 import bluepill.server.domain.User;
+import bluepill.server.dto.user.DeleteUserRequest;
 import bluepill.server.dto.user.UpdateProfileResponse;
 import bluepill.server.dto.user.UserProfileResponse;
 import bluepill.server.dto.user.UserProfileUpdateRequest;
@@ -9,6 +10,7 @@ import bluepill.server.exception.ErrorCode;
 import bluepill.server.repository.character.CharacterCardRepository;
 import bluepill.server.repository.post.PostRepository;
 import bluepill.server.repository.user.UserRepository;
+import bluepill.server.repository.user.UserTokenRepository;
 import bluepill.server.util.ImageUrlBuilder;
 import bluepill.server.util.NicknameGenerator;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,7 @@ import java.util.UUID;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final UserTokenRepository userTokenRepository;
     private final CharacterCardRepository characterCardRepository;
     private final PostRepository postRepository;
     private final NicknameGenerator nicknameGenerator;
@@ -87,5 +90,15 @@ public class UserService {
         characterCardRepository.updateIsPublicByCreator(userId, user.getIsPublic());
 
         return user.getIsPublic();
+    }
+
+    @Transactional
+    public void deleteUser(Long userId, DeleteUserRequest request) {
+        User user = userRepository.findByUserIdAndIsDeletedFalse(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        user.softDelete(request.deletedReason());
+
+        userTokenRepository.findByUser(user).ifPresent(userTokenRepository::delete);
     }
 }
