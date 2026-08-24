@@ -39,7 +39,6 @@ public class AuthService {
 
     public void logout(String refreshToken) {
         if(refreshToken == null || refreshToken.isBlank()) return;
-
         userTokenRepository.findByRefreshToken(refreshToken).ifPresent(userTokenRepository :: delete);
     }
 }

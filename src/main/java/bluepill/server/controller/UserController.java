@@ -2,6 +2,7 @@ package bluepill.server.controller;
 
 import bluepill.server.annotation.CurrentUserId;
 import bluepill.server.dto.common.ApiResponse;
+import bluepill.server.dto.user.DeleteUserRequest;
 import bluepill.server.dto.user.UpdateProfileResponse;
 import bluepill.server.dto.user.UserProfileUpdateRequest;
 import bluepill.server.dto.user.UserProfileResponse;
@@ -9,7 +10,11 @@ import bluepill.server.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -20,6 +25,12 @@ import java.util.UUID;
 public class UserController {
 
     private final UserService userService;
+
+    @Value("${app.cookie.secure}")
+    private boolean secure;
+
+    @Value("${app.cookie.same-site}")
+    private String sameSite;
 
     @Operation(summary = "프로필 조회", description = "publicId로 사용자의 프로필 정보를 조회합니다. 로그인한 사용자가 본인의 프로필을 조회한 경우 isOwner가 true로 반환됩니다.")
     @GetMapping("/{publicId}")
@@ -55,5 +66,22 @@ public class UserController {
         boolean isPublic = userService.toggleVisibility(userId);
 
         return ApiResponse.success("공개 여부 변경 성공", isPublic);
+    }
+
+    @Operation(summary = "회원 탈퇴", description = "회원 탈퇴 시 논리삭제(isDeleted=true) 처리 됩니다. ")
+    @DeleteMapping("/me")
+    public ApiResponse<Void> deleteUser(@Parameter(hidden = true) @CurrentUserId Long userId, @RequestBody DeleteUserRequest request, HttpServletResponse response){
+        userService.deleteUser(userId, request);
+
+        ResponseCookie cookie = ResponseCookie.from("refreshToken", "")
+                .httpOnly(true)
+                .secure(secure)
+                .path("/")
+                .maxAge(0)
+                .sameSite(sameSite)
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+
+        return ApiResponse.success("회원 탈퇴 성공");
     }
 }
