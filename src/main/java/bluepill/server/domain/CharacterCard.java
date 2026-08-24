@@ -27,7 +27,7 @@ public class CharacterCard extends BaseTimeEntity {
     @Column(nullable = false, length = 30)
     private String name;
 
-    @Column(unique = true, updatable = false)
+    @Column(unique = true, updatable = false, nullable = false)
     private Long code;
 
     @Column(nullable = false)
@@ -42,10 +42,13 @@ public class CharacterCard extends BaseTimeEntity {
     @Column(name = "image_url", nullable = false)
     private String imageUrl;
 
+    @Column(nullable = false)
     private Long useCnt;
 
+    @Column(nullable = false)
     private Boolean isDeleted;
 
+    @Column(nullable = false)
     private Boolean isPublic;
 
     @ManyToOne(fetch = FetchType.LAZY)
