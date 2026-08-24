@@ -213,6 +213,7 @@ public class PostService {
         return participantsByRoom;
     }
 
+    @Transactional
     public void deletePost(UUID publicId, Long viewerId) {
         Post post = postRepository.findByPublicId(publicId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.POST_NOT_FOUND));
