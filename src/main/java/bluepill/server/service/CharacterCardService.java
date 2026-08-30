@@ -108,9 +108,10 @@ public class CharacterCardService {
             card.incrementVersion();
         }
 
-        // 이미지가 바뀌었으면, 옛 이미지를 참조하는 스냅샷이 없을 때만 R2에서 삭제 (커밋 후)
+        // 이미지가 실제로 새로 지정된 경우에만(요청에서 생략됐으면 변경 의도 없음) 옛 이미지를
+        // 참조하는 스냅샷이 없을 때 R2에서 삭제 (커밋 후)
         String newImageKey = request.getImageUrl();
-        if (oldImageKey != null && !oldImageKey.equals(newImageKey)) {
+        if (oldImageKey != null && newImageKey != null && !oldImageKey.equals(newImageKey)) {
             TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
                 @Override
                 public void afterCommit() {
