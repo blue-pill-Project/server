@@ -35,7 +35,8 @@ public class LogPhotoRepositoryImpl implements LogPhotoRepositoryCustom {
                                 .when(m.user.isNotNull()).then("USER")
                                 .otherwise("CHARACTER"),
                         s.name.coalesce(u.nickname),       // 캐릭터면 스냅샷 이름, 사람이면 닉네임
-                        s.imageUrl.coalesce(u.imageUrl)))  // 캐릭터면 스냅샷 이미지, 사람이면 프로필
+                        s.imageUrl.coalesce(u.imageUrl),   // 캐릭터면 스냅샷 이미지, 사람이면 프로필
+                        p.createdAt))
                 .from(p)
                 .join(p.member, m)
                 .leftJoin(m.user, u)

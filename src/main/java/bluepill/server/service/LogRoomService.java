@@ -246,7 +246,8 @@ public class LogRoomService {
                             imageUrlBuilder.buildUrl(row.imageUrl()),
                             row.authorType(),
                             row.authorName(),
-                            imageUrlBuilder.buildUrl(row.authorImageUrl())
+                            imageUrlBuilder.buildUrl(row.authorImageUrl()),
+                            row.createdAt()
                     ));
         }
 
