@@ -70,6 +70,15 @@ public class AgentClient {
                 .body(AgentCharacterPromptResponse.class);
     }
 
+    // chat_rule 생성
+    public AgentChatRuleResponse completeChatRule(AgentChatRuleRequest req) {
+        return restClient.post()
+                .uri("/chat-rule/run")
+                .body(req)
+                .retrieve()
+                .body(AgentChatRuleResponse.class);
+    }
+
     public record AgentDailyLogRequest(
             String timeslot,
             @JsonProperty("user_id") String userId,
@@ -107,5 +116,14 @@ public class AgentClient {
 
     public record AgentCharacterPromptResponse(
             String prompt
+    ) {}
+
+    public record AgentChatRuleRequest(
+            @JsonProperty("character_id") String characterId,
+            String relationship
+    ) {}
+
+    public record AgentChatRuleResponse(
+            @JsonProperty("chat_rule") String chatRule
     ) {}
 }
