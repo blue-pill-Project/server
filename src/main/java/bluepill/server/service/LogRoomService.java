@@ -37,9 +37,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.DateTimeException;
 import java.time.LocalDate;
@@ -71,6 +74,7 @@ public class LogRoomService {
     private final ImageStorageService imageStorageService;
     private final ChatMessageRepository chatMessageRepository;
     private final AgentClient agentClient;
+    private final PlatformTransactionManager transactionManager;
 
     public LogRoomListResponse getMyLogRooms(Long viewerId, UUID cursor, int size) {
         // 쿼리1: 방 페이지(+방장)
@@ -155,12 +159,14 @@ public class LogRoomService {
         return new LogRoomListResponse(content, nextCursor, hasNext, total);
     }
 
-    @Transactional
+    // 클래스가 @Transactional(readOnly=true)라, 이 메서드는 트랜잭션에서 빠져나온다.
+    // LLM(chat_rule) 호출을 트랜잭션 밖에서 하여 커넥션 점유 시간을 줄이고,
+    // DB 쓰기만 TransactionTemplate 으로 짧게 묶어 원자성을 유지한다.
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public LogRoomCreateResponse createLogRoom(LogRoomCreateRequest request, Long creatorUserId) {
-        // 생성자(방장) 조회
+        // 1. 검증 (트랜잭션 밖)
         User creator = userService.findById(creatorUserId);
 
-        // 캐릭터 카드 조회 + 검증 (1명만 허용은 DTO에서 검증)
         UUID cardPublicId = request.getCharacterCardPublicIds().get(0);
         CharacterCard card = characterCardRepository.findByPublicIdAndIsDeletedFalse(cardPublicId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.CHARACTER_CARD_NOT_FOUND));
@@ -170,55 +176,73 @@ public class LogRoomService {
             throw new BusinessException(ErrorCode.CHARACTER_CARD_PRIVATE);
         }
 
-        // 스냅샷 find-or-create (현재 카드 버전 기준)
-        CharacterSnapshot snapshot = characterSnapshotRepository
-                .findByCharacterIdAndVersion(card.getId(), card.getVersion())
-                .orElseGet(() -> characterSnapshotRepository.save(
-                        CharacterSnapshot.builder()
-                                .characterId(card.getId())
-                                .version(card.getVersion())
-                                .name(card.getName())
-                                .description(card.getDescription())
-                                .prompt(card.getPrompt())
-                                .imageUrl(card.getImageUrl())
-                                .exampleDialogues(card.getExampleDialogues().stream()
-                                        .map(ExampleDialogue::getContent)
-                                        .toList())
-                                .build()
-                ));
+        // 2. chat_rule 생성 (트랜잭션 밖: LLM 대기 동안 커넥션 안 잡음)
+        //     여기서 실패하면 예외로 종료 → 아래 트랜잭션 시작 안 함 → 방 안 생김(원자성 유지)
+        String chatRule = agentClient.completeChatRule(
+                new AgentClient.AgentChatRuleRequest(
+                        String.valueOf(card.getId()),
+                        request.getRelationship()
+                )
+        ).chatRule();
 
-        // 로그방 생성
-        LogRoom room = logRoomRepository.save(LogRoom.builder()
-                .publicId(UUID.randomUUID())
-                .name(request.getName())
-                .isPublic(request.getIsPublic())
-                .createdBy(creator)
-                .build());
+        // 3. DB 쓰기만 짧은 트랜잭션으로 일괄 처리
+        TransactionTemplate tx = new TransactionTemplate(transactionManager);
+        return tx.execute(status -> {
+            // 3-1. 재검증 (TOCTOU 방지) + 트랜잭션 내 관리 엔티티 확보(지연 로딩용)
+            CharacterCard fresh = characterCardRepository.findByPublicIdAndIsDeletedFalse(cardPublicId)
+                    .orElseThrow(() -> new BusinessException(ErrorCode.CHARACTER_CARD_NOT_FOUND));
 
-        // 멤버 생성
-        LogRoomMember humanMember = logRoomMemberRepository.save(LogRoomMember.builder()
-                .publicId(UUID.randomUUID())
-                .logRoom(room)
-                .user(creator)
-                .snapshot(null)
-                .build());
+            // 3-2. 스냅샷 find-or-create (현재 카드 버전 기준)
+            CharacterSnapshot snapshot = characterSnapshotRepository
+                    .findByCharacterIdAndVersion(fresh.getId(), fresh.getVersion())
+                    .orElseGet(() -> characterSnapshotRepository.save(
+                            CharacterSnapshot.builder()
+                                    .characterId(fresh.getId())
+                                    .version(fresh.getVersion())
+                                    .name(fresh.getName())
+                                    .description(fresh.getDescription())
+                                    .prompt(fresh.getPrompt())
+                                    .imageUrl(fresh.getImageUrl())
+                                    .exampleDialogues(fresh.getExampleDialogues().stream()
+                                            .map(ExampleDialogue::getContent)
+                                            .toList())
+                                    .build()
+                    ));
 
-        LogRoomMember characterMember = logRoomMemberRepository.save(LogRoomMember.builder()
-                .publicId(UUID.randomUUID())
-                .logRoom(room)
-                .user(null)
-                .snapshot(snapshot)
-                .build());
+            // 3-3. 로그방 생성
+            LogRoom room = logRoomRepository.save(LogRoom.builder()
+                    .publicId(UUID.randomUUID())
+                    .name(request.getName())
+                    .isPublic(request.getIsPublic())
+                    .createdBy(creator)
+                    .build());
 
-        // 관계 저장
-        logRoomRelationshipRepository.save(LogRoomRelationship.builder()
-                .logRoom(room)
-                .memberA(humanMember)
-                .memberB(characterMember)
-                .label(request.getRelationship())
-                .build());
+            // 3-4. 멤버 생성
+            LogRoomMember humanMember = logRoomMemberRepository.save(LogRoomMember.builder()
+                    .publicId(UUID.randomUUID())
+                    .logRoom(room)
+                    .user(creator)
+                    .snapshot(null)
+                    .build());
 
-        return LogRoomCreateResponse.from(room);
+            LogRoomMember characterMember = logRoomMemberRepository.save(LogRoomMember.builder()
+                    .publicId(UUID.randomUUID())
+                    .logRoom(room)
+                    .user(null)
+                    .snapshot(snapshot)
+                    .build());
+
+            // 3-5. 관계 + chat_rule 저장
+            logRoomRelationshipRepository.save(LogRoomRelationship.builder()
+                    .logRoom(room)
+                    .memberA(humanMember)
+                    .memberB(characterMember)
+                    .label(request.getRelationship())
+                    .chatRule(chatRule)
+                    .build());
+
+            return LogRoomCreateResponse.from(room);
+        });
     }
 
     public List<DayLogTimeSlot> getDayLog(UUID roomPublicId, LocalDate date, Long viewerId) {
