@@ -111,7 +111,8 @@ public class PostService {
                             row.imageUrl(),
                             row.authorType(),
                             row.authorName(),
-                            row.authorImageUrl()
+                            row.authorImageUrl(),
+                            row.createdAt()
                     ));
         }
 
@@ -166,7 +167,8 @@ public class PostService {
                             row.imageUrl(),
                             row.authorType(),
                             row.authorName(),
-                            row.authorImageUrl()
+                            row.authorImageUrl(),
+                            row.createdAt()
                     ));
         }
 

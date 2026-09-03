@@ -62,7 +62,8 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                                 .when(m.user.isNotNull()).then("USER")
                                 .otherwise("CHARACTER"),
                         s.name.coalesce(u.nickname),       // 캐릭터면 스냅샷 이름, 사람이면 닉네임
-                        s.imageUrl.coalesce(u.imageUrl)))  // 캐릭터면 스냅샷 이미지, 사람이면 프로필
+                        s.imageUrl.coalesce(u.imageUrl),   // 캐릭터면 스냅샷 이미지, 사람이면 프로필
+                        photo.createdAt))
                 .from(p)
                 .innerJoin(m).on(m.logRoom.id.eq(p.logRoom.id))   // 같은 방의 멤버
                 .innerJoin(photo).on(                              // 그 멤버가 해당 (날짜, 시간대)에 올린 사진

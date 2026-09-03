@@ -1,5 +1,6 @@
 package bluepill.server.repository.logroom;
 
+import java.time.Instant;
 import java.util.UUID;
 
 public record DayLogRow(
@@ -10,5 +11,6 @@ public record DayLogRow(
         String imageUrl,
         String authorType,
         String authorName,
-        String authorImageUrl
+        String authorImageUrl,
+        Instant createdAt
 ) {}

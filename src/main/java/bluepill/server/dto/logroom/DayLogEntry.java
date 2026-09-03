@@ -3,6 +3,7 @@ package bluepill.server.dto.logroom;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.time.Instant;
 import java.util.UUID;
 
 @Getter
@@ -15,4 +16,5 @@ public class DayLogEntry {
     private String authorType;
     private String authorName;
     private String authorImageUrl;
+    private Instant createdAt;
 }
