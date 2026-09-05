@@ -30,7 +30,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
         String email = oAuth2User.getAttribute("email");
 
         userRepository
-                .findByProviderAndProviderId(provider, providerId)
+                .findByProviderAndProviderIdAndIsDeletedFalse(provider, providerId)
                 .orElseGet(() -> {
                     SubscriptionPlan freePlan = subscriptionPlanRepository.findByPlanName("FREE")
                             .orElseThrow(() -> new BusinessException(ErrorCode.PLAN_NOT_FOUND));

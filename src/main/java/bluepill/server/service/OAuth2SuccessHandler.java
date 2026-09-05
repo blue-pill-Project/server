@@ -51,7 +51,7 @@ public class OAuth2SuccessHandler  extends SimpleUrlAuthenticationSuccessHandler
         String providerId = getProviderId(provider, oAth2User);
 
         //DB에서 user 조회
-        User user = userRepository.findByProviderAndProviderId(provider, providerId).orElseThrow(()-> new BusinessException(ErrorCode.USER_NOT_FOUND));
+        User user = userRepository.findByProviderAndProviderIdAndIsDeletedFalse(provider, providerId).orElseThrow(()-> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         // JWT 발급
         String refreshToken = jwtProvider.generateRefreshToken(user);
