@@ -1,5 +1,6 @@
 package bluepill.server.repository.post;
 
+import java.time.Instant;
 import java.util.UUID;
 
 public record PostPhotoRow(
@@ -10,5 +11,6 @@ public record PostPhotoRow(
         String imageUrl,
         String authorType,
         String authorName,
-        String authorImageUrl
+        String authorImageUrl,
+        Instant createdAt
 ) {}

@@ -32,11 +32,15 @@ public class LogRoomRelationship extends BaseTimeEntity {
     @Column(nullable = false, length = 24)
     private String label;
 
+    @Column(name = "chat_rule", columnDefinition = "TEXT")
+    private String chatRule;
+
     @Builder
-    public LogRoomRelationship(LogRoom logRoom, LogRoomMember memberA, LogRoomMember memberB, String label) {
+    public LogRoomRelationship(LogRoom logRoom, LogRoomMember memberA, LogRoomMember memberB, String label, String chatRule) {
         this.logRoom = logRoom;
         this.memberA = memberA;
         this.memberB = memberB;
         this.label = label;
+        this.chatRule = chatRule;
     }
 }
